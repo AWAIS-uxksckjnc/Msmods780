@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#04060b">
+<title>RC24 Decrypter PRO — Sohail Mods</title>
+<style>
+  :root{
+    --mint-rgb:53,245,160;--cyan-rgb:56,214,255;--violet-rgb:139,108,255;--gold-rgb:255,217,138;--gold2-rgb:255,159,74;
+    --bg:#04060b; --ink:#eaf1ff; --dim:#8494b0; --faint:#3a4660;
+    --mint:#35f5a0; --cyan:#38d6ff; --violet:#8b6cff; --amber:#ffc46b; --red:#ff5d7a;
+    --gold:#ffd98a; --gold2:#ff9f4a;
+    --glass:rgba(12,18,32,.62); --edge:rgba(140,170,255,.14); --edge-strong:rgba(var(--mint-rgb),.45);
+    --sans:"Segoe UI Variable Display","SF Pro Display","Inter","Helvetica Neue",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    --mono:ui-monospace,"JetBrains Mono","SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:72px}
+  body{
+    min-height:100vh;color:var(--ink);font-family:var(--sans);overflow-x:hidden;position:relative;
+    background:
+      radial-gradient(1200px 700px at 50% -10%,#0b1730 0%,transparent 60%),
+      radial-gradient(900px 600px at 100% 100%,#0a1a2a 0%,transparent 55%),var(--bg);
+    padding-bottom:calc(env(safe-area-inset-bottom,0px) + 40px);
+  }
+  a{color:inherit;text-decoration:none}
+
+  /* ---------- background ---------- */
+  #fx{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+  .aurora{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .aurora i{position:absolute;width:55vmax;height:55vmax;border-radius:50%;filter:blur(90px);opacity:.19;will-change:transform}
+  .aurora i:nth-child(1){background:var(--mint);left:-18vmax;top:-22vmax;animation:d1 26s ease-in-out infinite alternate}
+  .aurora i:nth-child(2){background:var(--violet);right:-22vmax;top:22vh;animation:d2 32s ease-in-out infinite alternate}
+  .aurora i:nth-child(3){background:var(--cyan);left:20vw;bottom:-30vmax;opacity:.13;animation:d3 38s ease-in-out infinite alternate}
+  @keyframes d1{to{transform:translate(12vmax,10vmax) scale(1.15)}}
+  @keyframes d2{to{transform:translate(-14vmax,-6vmax) scale(.9)}}
+  @keyframes d3{to{transform:translate(8vmax,-10vmax) scale(1.2)}}
+  .vig{position:fixed;inset:0;z-index:1;pointer-events:none;
+    background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55) 100%),
+               repeating-linear-gradient(0deg,rgba(255,255,255,.012) 0 1px,transparent 1px 3px)}
+
+  /* ---------- nav ---------- */
+  .nav{
+    position:sticky;top:0;z-index:20;
+    padding:calc(env(safe-area-inset-top,0px) + 10px) 16px 10px;
+    background:rgba(4,6,11,.62);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--edge);
+  }
+  .nav-in{max-width:980px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.01em;font-size:16px}
+  .brand svg{width:30px;height:30px;flex:none;filter:drop-shadow(0 0 12px rgba(var(--mint-rgb),.5))}
+  .pro{
+    font-size:10px;font-weight:800;letter-spacing:.08em;padding:3px 8px;border-radius:999px;color:#2a1600;
+    background:linear-gradient(100deg,var(--gold),var(--gold2));box-shadow:0 0 18px -4px rgba(var(--gold2-rgb),.7)
+  }
+  .links{display:none;gap:4px}
+  .links a{padding:8px 14px;border-radius:999px;font-size:13.5px;color:var(--dim);transition:color .2s,background .2s}
+  .links a:hover{color:var(--ink);background:rgba(255,255,255,.06)}
+  .nav-cta{
+    padding:9px 16px;border-radius:999px;font-size:13px;font-weight:700;color:#03140b;
+    background:linear-gradient(100deg,var(--mint),var(--cyan));box-shadow:0 8px 24px -10px rgba(var(--mint-rgb),.8)
+  }
+  @media(min-width:720px){.links{display:flex}}
+
+  .wrap{position:relative;z-index:2;max-width:760px;margin:0 auto;padding:0 16px}
+
+  /* ---------- hero ---------- */
+  .hero{text-align:center;padding:46px 0 10px}
+  .badge{
+    display:inline-flex;align-items:center;gap:9px;padding:7px 14px 7px 8px;border-radius:999px;
+    background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
+    border:1px solid var(--edge);font-size:12.5px;color:var(--dim);
+  }
+  .badge b{font-weight:800;font-size:10.5px;letter-spacing:.06em;color:#04110b;padding:3px 9px;border-radius:999px;background:linear-gradient(90deg,var(--mint),var(--cyan))}
+  h1{
+    margin-top:24px;font-size:clamp(38px,10.4vw,72px);line-height:1.02;font-weight:800;letter-spacing:-.04em;
+    background:linear-gradient(100deg,#fff 0%,#c4ffe4 36%,var(--cyan) 70%,var(--violet) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 10px 44px rgba(var(--mint-rgb),.22));
+  }
+  .sub{max-width:520px;margin:18px auto 0;color:var(--dim);font-size:15px;line-height:1.7}
+  .sub b{color:var(--ink);font-weight:600}
+  .cta-row{margin-top:26px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;padding:14px 22px;border-radius:14px;font:700 14.5px var(--sans);cursor:pointer;border:none;
+    transition:transform .18s,box-shadow .18s
+  }
+  .btn svg{width:17px;height:17px}
+  .btn.p{color:#03140b;background:linear-gradient(100deg,var(--mint),var(--cyan));box-shadow:0 14px 34px -12px rgba(var(--mint-rgb),.7),0 1px 0 rgba(255,255,255,.5) inset}
+  .btn.g{color:var(--ink);background:rgba(255,255,255,.05);border:1px solid var(--edge)}
+  .btn:hover{transform:translateY(-2px)}
+  .trust{margin-top:24px;display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:center;font-size:12.5px;color:var(--dim)}
+  .trust span{display:inline-flex;align-items:center;gap:7px}
+  .trust svg{width:15px;height:15px;color:var(--mint)}
+
+  .marquee{margin:34px -16px 0;overflow:hidden;border-block:1px solid var(--edge);background:rgba(255,255,255,.02);
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+  .mq{display:flex;width:max-content;animation:mq 30s linear infinite}
+  .mq span{padding:13px 22px;font:600 13px var(--mono);color:var(--dim);white-space:nowrap}
+  .mq span::after{content:"◆";margin-left:44px;color:var(--mint);opacity:.55;font-size:8px;vertical-align:middle}
+  @keyframes mq{to{transform:translateX(-50%)}}
+
+  /* ---------- tool frame ---------- */
+  .tool{padding-top:44px}
+  .frame{position:relative;padding:1.5px;border-radius:24px;overflow:hidden;
+    box-shadow:0 40px 90px -30px rgba(0,0,0,.9),0 0 80px -30px rgba(var(--mint-rgb),.35)}
+  .frame::before{
+    content:"";position:absolute;left:50%;top:50%;width:180%;aspect-ratio:1;margin:-90% 0 0 -90%;
+    background:conic-gradient(from 0deg,transparent 0 55%,var(--mint) 70%,var(--cyan) 80%,var(--violet) 90%,transparent 100%);
+    animation:spin 7s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .card{
+    --mx:50%;--my:0%;position:relative;padding:22px 18px 18px;border-radius:23px;
+    background:linear-gradient(180deg,#0e1628,#070b15);overflow:hidden;
+  }
+  .card::before{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(420px circle at var(--mx) var(--my),rgba(var(--mint-rgb),.10),transparent 62%)}
+  .card>*{position:relative}
+  .card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}
+  .card-head h2{font-size:17px;font-weight:700;letter-spacing:-.01em}
+  .live{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--dim)}
+  .live i{width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 10px var(--mint);animation:pulse 2s infinite}
+  @keyframes pulse{50%{opacity:.3}}
+
+  .seg{position:relative;display:grid;grid-template-columns:1fr 1fr;padding:4px;border-radius:14px;background:rgba(0,0,0,.4);border:1px solid var(--edge)}
+  .thumb{position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:11px;
+    background:linear-gradient(135deg,rgba(var(--mint-rgb),.22),rgba(var(--cyan-rgb),.14));border:1px solid var(--edge-strong);
+    box-shadow:0 0 28px -6px rgba(var(--mint-rgb),.5);transition:transform .32s cubic-bezier(.3,.8,.3,1)}
+  .seg[data-mode="encrypt"] .thumb{transform:translateX(100%)}
+  .seg-btn{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 8px;background:none;border:none;cursor:pointer;font:600 14px var(--sans);color:var(--dim);transition:color .2s}
+  .seg-btn svg{width:16px;height:16px}
+  .seg-btn.active{color:var(--mint)}
+
+  .drop{margin-top:16px;padding:34px 16px;text-align:center;cursor:pointer;border-radius:18px;border:1.5px dashed rgba(var(--mint-rgb),.32);
+    background:radial-gradient(circle at 50% 0%,rgba(var(--mint-rgb),.07),transparent 70%),rgba(255,255,255,.015);transition:border-color .2s,background .2s,transform .2s}
+  .drop:hover,.drop.drag{border-color:var(--mint);background:radial-gradient(circle at 50% 0%,rgba(var(--mint-rgb),.14),transparent 70%),rgba(var(--mint-rgb),.03)}
+  .drop.drag{transform:scale(1.015)}
+  .drop-ico{width:56px;height:56px;margin:0 auto 14px;border-radius:17px;display:grid;place-items:center;color:var(--mint);
+    background:linear-gradient(135deg,rgba(var(--mint-rgb),.18),rgba(var(--cyan-rgb),.10));border:1px solid var(--edge-strong);box-shadow:0 12px 30px -10px rgba(var(--mint-rgb),.55)}
+  .drop-ico svg{width:25px;height:25px}
+  .drop-title{font-size:15.5px;font-weight:600}
+  .drop-sub{margin-top:5px;font-size:12.5px;color:var(--dim)}
+  input[type=file]{display:none}
+
+  .chip{margin-top:12px;padding:11px 12px;display:none;align-items:center;gap:12px;border:1px solid var(--edge);border-radius:13px;background:rgba(255,255,255,.035)}
+  .chip.show{display:flex}
+  .chip svg.f{width:20px;height:20px;color:var(--cyan);flex:none}
+  .fname{flex:1;min-width:0;font-size:13.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .fsize{font:11.5px var(--mono);color:var(--dim);flex:none}
+  .x{background:none;border:none;color:var(--dim);cursor:pointer;padding:5px;border-radius:8px;display:grid;place-items:center}
+  .x:hover{color:var(--red);background:rgba(255,93,122,.1)}
+  .x svg{width:16px;height:16px}
+
+  .run{position:relative;overflow:hidden;width:100%;margin-top:16px;padding:16px;border:none;border-radius:14px;cursor:pointer;
+    font:700 15px var(--sans);color:#03140b;background:linear-gradient(100deg,var(--mint),var(--cyan));
+    box-shadow:0 14px 34px -12px rgba(var(--mint-rgb),.65),0 1px 0 rgba(255,255,255,.5) inset;transition:transform .18s,box-shadow .18s}
+  .run::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:45%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);transition:left .7s}
+  .run:hover:not(:disabled){transform:translateY(-2px)}
+  .run:hover:not(:disabled)::after{left:120%}
+  .run:disabled{cursor:not-allowed;background:rgba(255,255,255,.06);color:var(--faint);box-shadow:none;border:1px solid var(--edge)}
+  .run.busy{pointer-events:none;background-size:200% 100%;animation:busy 1s linear infinite}
+  @keyframes busy{from{background-position:0 0}to{background-position:-200% 0}}
+
+  /* stepper */
+  .steps{display:none;list-style:none;margin-top:16px;grid-template-columns:repeat(4,1fr);gap:6px}
+  .steps.on{display:grid}
+  .steps li{position:relative;text-align:center;font-size:11.5px;color:var(--faint);padding-top:22px;transition:color .3s}
+  .steps li::before{content:"";position:absolute;top:4px;left:50%;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--faint);transition:background .3s,box-shadow .3s}
+  .steps li::after{content:"";position:absolute;top:8px;left:calc(50% + 10px);right:calc(-50% + 10px);height:2px;background:var(--faint);opacity:.4}
+  .steps li:last-child::after{display:none}
+  .steps li.active{color:var(--amber)} .steps li.active::before{background:var(--amber);box-shadow:0 0 14px var(--amber)}
+  .steps li.done{color:var(--mint)} .steps li.done::before{background:var(--mint);box-shadow:0 0 12px rgba(var(--mint-rgb),.7)}
+  .steps li.done::after{background:var(--mint);opacity:.7}
+  .steps li.fail{color:var(--red)} .steps li.fail::before{background:var(--red);box-shadow:0 0 14px var(--red)}
+
+  .term{display:none;margin-top:14px;border:1px solid var(--edge);border-radius:13px;overflow:hidden;background:rgba(0,0,0,.45)}
+  .term.show{display:block}
+  .term-bar{display:flex;align-items:center;gap:6px;padding:8px 12px;border-bottom:1px solid var(--edge);background:rgba(255,255,255,.03)}
+  .term-bar i{width:8px;height:8px;border-radius:50%}
+  .term-bar i:nth-child(1){background:#ff5d7a99}.term-bar i:nth-child(2){background:#ffc46b99}.term-bar i:nth-child(3){background:#35f5a099}
+  .term-bar span{margin-left:8px;font:11px var(--mono);color:var(--dim)}
+  .log{padding:11px 14px;max-height:150px;overflow-y:auto;font:12px/1.65 var(--mono);color:var(--dim)}
+  .log .ok{color:var(--mint)}.log .err{color:var(--red)}.log .info{color:var(--amber)}.log div{word-break:break-word}
+
+  /* result */
+  .result{display:none;margin-top:14px;padding:16px;border-radius:16px;background:linear-gradient(135deg,rgba(var(--mint-rgb),.10),rgba(var(--cyan-rgb),.05));border:1px solid var(--edge-strong);animation:pop .5s cubic-bezier(.2,.9,.3,1.2)}
+  .result.show{display:block}
+  @keyframes pop{from{opacity:0;transform:scale(.97) translateY(6px)}to{opacity:1;transform:none}}
+  .r-top{display:flex;align-items:center;gap:12px}
+  .ok-ico{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;flex:none;background:rgba(var(--mint-rgb),.16);color:var(--mint)}
+  .ok-ico svg{width:19px;height:19px}
+  .r-meta{flex:1;min-width:0}
+  .r-meta small{display:block;font-size:11.5px;color:var(--dim)}
+  .r-meta span{display:block;margin-top:2px;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .r-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+  .r-stats div{padding:9px 6px;text-align:center;border-radius:11px;background:rgba(0,0,0,.28);border:1px solid var(--edge)}
+  .r-stats b{display:block;font-size:13.5px}
+  .r-stats small{display:block;margin-top:2px;font-size:10.5px;color:var(--dim)}
+  .dl{width:100%;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:9px;padding:15px;border-radius:13px;cursor:pointer;
+    background:linear-gradient(100deg,var(--gold),var(--gold2));color:#2a1600;border:none;font:800 15px var(--sans);
+    box-shadow:0 14px 34px -12px rgba(var(--gold2-rgb),.7),0 1px 0 rgba(255,255,255,.5) inset;transition:transform .18s}
+  .dl:hover{transform:translateY(-2px)}
+  .dl svg{width:18px;height:18px}
+  .more-toggle{display:block;width:100%;margin-top:10px;padding:10px;background:none;border:none;color:var(--dim);font:600 12.5px var(--sans);cursor:pointer}
+  .more-toggle:hover{color:var(--ink)}
+  .more{display:none;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+  .more.open{display:grid}
+  .more button{padding:12px 8px;border-radius:12px;cursor:pointer;background:rgba(255,255,255,.05);border:1px solid var(--edge);color:var(--ink);font:600 12.5px var(--sans);transition:border-color .2s,background .2s}
+  .more button:hover{border-color:var(--edge-strong);background:rgba(var(--mint-rgb),.08)}
+  .more button[hidden]{display:none}
+  .more p{grid-column:1/-1;font-size:11.5px;line-height:1.6;color:var(--dim);padding:2px 2px 0}
+
+  .pv{margin-top:12px;border:1px solid var(--edge);border-radius:13px;overflow:hidden;background:rgba(0,0,0,.4)}
+  .pv-tabs{display:flex;border-bottom:1px solid var(--edge)}
+  .pv-tabs button{flex:1;padding:9px;background:none;border:none;color:var(--dim);font:600 12px var(--sans);cursor:pointer}
+  .pv-tabs button.on{color:var(--mint);background:rgba(var(--mint-rgb),.07)}
+  .pv pre{margin:0;padding:12px 14px;max-height:200px;overflow:auto;font:11.5px/1.6 var(--mono);color:var(--text,#cfe);white-space:pre-wrap;word-break:break-all;-webkit-user-select:text;user-select:text}
+
+  .info{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--edge);font-size:12px;color:var(--dim)}
+  .info code{font-family:var(--mono);color:var(--amber)}
+
+  /* ---------- sections ---------- */
+  section.s{padding-top:72px}
+  .s-head{text-align:center;margin-bottom:26px}
+  .s-head h3{font-size:clamp(25px,6.4vw,36px);letter-spacing:-.03em;font-weight:800;line-height:1.1}
+  .s-head p{margin-top:10px;font-size:14.5px;color:var(--dim);line-height:1.65}
+  .grid{display:grid;gap:12px;grid-template-columns:1fr}
+  .feat{padding:20px;border-radius:18px;border:1px solid var(--edge);background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  .feat .ic{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;margin-bottom:14px;color:var(--mint);
+    background:linear-gradient(135deg,rgba(var(--mint-rgb),.16),rgba(var(--cyan-rgb),.08));border:1px solid rgba(var(--mint-rgb),.3)}
+  .feat:nth-child(2) .ic{color:var(--cyan);border-color:rgba(var(--cyan-rgb),.3)}
+  .feat:nth-child(3) .ic{color:var(--violet);border-color:rgba(var(--violet-rgb),.35)}
+  .feat:nth-child(4) .ic{color:var(--gold);border-color:rgba(var(--gold-rgb),.3)}
+  .feat .ic svg{width:20px;height:20px}
+  .feat h4{font-size:16px;font-weight:700;letter-spacing:-.01em}
+  .feat p{margin-top:6px;font-size:13.5px;color:var(--dim);line-height:1.65}
+  @media(min-width:560px){.grid.two{grid-template-columns:1fr 1fr}}
+
+  .how{display:grid;gap:12px}
+  .how div{display:flex;gap:14px;align-items:flex-start;padding:16px;border-radius:16px;border:1px solid var(--edge);background:rgba(255,255,255,.025)}
+  .how em{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:800 14px var(--mono);font-style:normal;color:#03140b;background:linear-gradient(135deg,var(--mint),var(--cyan))}
+  .how h4{font-size:15px;font-weight:700}
+  .how p{margin-top:3px;font-size:13.5px;color:var(--dim);line-height:1.6}
+
+  details{border:1px solid var(--edge);border-radius:15px;background:rgba(255,255,255,.025);margin-bottom:10px;overflow:hidden}
+  summary{list-style:none;cursor:pointer;padding:16px 18px;font-weight:600;font-size:14.5px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";font:400 22px var(--mono);color:var(--mint);transition:transform .25s;flex:none}
+  details[open] summary::after{transform:rotate(45deg)}
+  details p{padding:0 18px 17px;font-size:13.5px;color:var(--dim);line-height:1.7}
+
+  footer{margin-top:64px;padding:26px 0 8px;text-align:center;border-top:1px solid var(--edge);font-size:12.5px;color:var(--faint);line-height:1.9}
+  footer b{color:var(--dim)}
+
+  /* toast */
+  .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);z-index:50;max-width:90vw;padding:12px 18px;border-radius:14px;
+    background:rgba(14,22,40,.95);border:1px solid var(--edge-strong);color:var(--ink);font-size:13px;text-align:center;
+    box-shadow:0 20px 50px -10px rgba(0,0,0,.8);transform:translate(-50%,30px);opacity:0;pointer-events:none;transition:all .35s cubic-bezier(.2,.8,.3,1)}
+  .toast.show{transform:translate(-50%,0);opacity:1}
+
+  .rv{opacity:0;transform:translateY(18px);transition:opacity .7s,transform .7s cubic-bezier(.2,.7,.2,1)}
+  .rv.in{opacity:1;transform:none}
+  .hero>*{opacity:0;transform:translateY(14px);animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards}
+  .hero>*:nth-child(2){animation-delay:.1s}.hero>*:nth-child(3){animation-delay:.2s}.hero>*:nth-child(4){animation-delay:.3s}.hero>*:nth-child(5){animation-delay:.4s}
+  @keyframes rise{to{opacity:1;transform:none}}
+
+  :focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+  @media(max-width:420px){.card{padding:18px 14px 14px}.r-stats b{font-size:12.5px}}
+  @media(prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important}
+    .rv,.hero>*{opacity:1;transform:none}
+  }
+
+  .logo{display:inline-grid;place-items:center;width:30px;height:30px;flex:none;color:var(--mint);filter:drop-shadow(0 0 12px rgba(var(--mint-rgb),.5))}
+  .logo svg{width:30px;height:30px}
+  .logo img{width:30px;height:30px;object-fit:contain;border-radius:8px}
+  .hist-note{margin-top:10px;font-size:11.5px;color:var(--dim);line-height:1.6}
+  .hist-note[hidden],.pro[hidden],.nav .links a[hidden]{display:none}
+  body.adm-open{overflow:hidden}
+
+  /* ================= ADMIN ================= */
+  .adm{position:fixed;inset:0;z-index:100;background:#05080f;color:var(--ink);font-family:var(--sans);overflow:hidden;display:flex;flex-direction:column}
+  .adm[hidden]{display:none}
+  .adm-bar{display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 10px;border-bottom:1px solid var(--edge);background:rgba(10,15,28,.95)}
+  .adm-bar h2{font-size:15px;font-weight:800;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .adm-bar h2 small{color:var(--gold);font-weight:700;margin-left:6px;font-size:11px}
+  .svd{font-size:11.5px;color:var(--mint);opacity:0;transition:opacity .3s}
+  .svd.on{opacity:1}
+  .bs{padding:9px 13px;border-radius:10px;border:1px solid var(--edge);background:rgba(255,255,255,.05);color:var(--ink);font:600 12.5px var(--sans);cursor:pointer;white-space:nowrap}
+  .bs:hover{border-color:var(--edge-strong)}
+  .bs.pri{background:linear-gradient(100deg,var(--mint),var(--cyan));color:#03140b;border:none;font-weight:800}
+  .bs.warn{color:var(--red);border-color:rgba(255,93,122,.4)}
+  .bs.gold{background:linear-gradient(100deg,var(--gold),var(--gold2));color:#2a1600;border:none;font-weight:800}
+  .adm-tabs{display:flex;gap:6px;padding:10px 14px;overflow-x:auto;border-bottom:1px solid var(--edge);-webkit-overflow-scrolling:touch}
+  .adm-tabs button{flex:none;padding:9px 14px;border-radius:999px;border:1px solid var(--edge);background:none;color:var(--dim);font:600 13px var(--sans);cursor:pointer}
+  .adm-tabs button.on{color:#03140b;background:var(--mint);border-color:var(--mint)}
+  .adm-body{flex:1;overflow-y:auto;padding:16px 14px calc(env(safe-area-inset-bottom,0px) + 60px);-webkit-overflow-scrolling:touch}
+  .adm-in{max-width:680px;margin:0 auto}
+  .ag{border:1px solid var(--edge);border-radius:16px;padding:16px;margin-bottom:14px;background:rgba(255,255,255,.025)}
+  .ag>h4{font-size:14px;margin-bottom:12px;color:var(--mint)}
+  .ag>p.n{font-size:12px;color:var(--dim);line-height:1.65;margin-bottom:12px}
+  .fl{display:block;margin-bottom:12px}
+  .fl>span{display:block;font-size:12px;color:var(--dim);margin-bottom:6px;font-weight:600}
+  .fl>small{display:block;font-size:11px;color:var(--faint);margin-top:5px;line-height:1.5}
+  .in{width:100%;padding:12px 13px;border-radius:11px;border:1px solid var(--edge);background:rgba(0,0,0,.4);color:var(--ink);font:14px var(--sans);outline:none;resize:vertical}
+  .in:focus{border-color:var(--mint);box-shadow:0 0 0 3px rgba(var(--mint-rgb),.12)}
+  .tg{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 2px;font-size:13.5px;cursor:pointer;border-bottom:1px solid rgba(140,170,255,.07)}
+  .tg input{position:absolute;opacity:0;pointer-events:none}
+  .tg i{position:relative;flex:none;width:44px;height:25px;border-radius:99px;background:rgba(255,255,255,.1);transition:background .2s}
+  .tg i::after{content:"";position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:#fff;transition:transform .2s}
+  .tg input:checked + i{background:var(--mint)}
+  .tg input:checked + i::after{transform:translateX(19px);background:#03140b}
+  .clr{display:flex;align-items:center;gap:10px}
+  .clr input[type=color]{width:46px;height:40px;border:1px solid var(--edge);border-radius:10px;background:none;padding:2px;cursor:pointer}
+  .clr code{font:12px var(--mono);color:var(--amber)}
+  .icb{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:11px;border:1px solid var(--edge);background:rgba(0,0,0,.4);color:var(--ink);font:600 13px var(--sans);cursor:pointer}
+  .icb svg{width:22px;height:22px;color:var(--mint)}
+  .li{border:1px solid var(--edge);border-radius:14px;padding:12px;margin-bottom:10px;background:rgba(0,0,0,.25)}
+  .li-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:13px}
+  .acts{display:flex;gap:6px}
+  .acts .bs{padding:6px 10px}
+  .login{max-width:380px;margin:12vh auto 0;padding:24px;border-radius:20px;border:1px solid var(--edge);background:linear-gradient(180deg,#0e1628,#070b15);box-shadow:0 30px 80px -30px #000}
+  .login h3{font-size:20px;margin-bottom:6px}
+  .login p{font-size:12.5px;color:var(--dim);line-height:1.6;margin-bottom:16px}
+  .login .bs{width:100%;margin-top:6px;padding:13px}
+  .err-t{color:var(--red);font-size:12.5px;margin-top:10px;min-height:16px}
+  .chips{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+  .chips button{padding:7px 12px;border-radius:99px;border:1px solid var(--edge);background:none;color:var(--dim);font:600 12px var(--sans);cursor:pointer}
+  .chips button.on{color:var(--mint);border-color:var(--edge-strong);background:rgba(var(--mint-rgb),.08)}
+  .fr{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid var(--edge);border-radius:13px;margin-bottom:8px;background:rgba(0,0,0,.25)}
+  .fr-i{flex:1;min-width:0}
+  .fr-i b{display:block;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .fr-i small{display:block;margin-top:3px;font-size:11px;color:var(--dim)}
+  .tagm{display:inline-block;padding:1px 7px;border-radius:99px;font-size:10px;font-weight:800;margin-right:6px;background:rgba(var(--mint-rgb),.15);color:var(--mint)}
+  .tagm.e{background:rgba(var(--violet-rgb),.2);color:#b6a3ff}
+  .empty{text-align:center;color:var(--dim);font-size:13px;padding:26px 10px;border:1px dashed var(--edge);border-radius:14px}
+  .mdl{position:fixed;inset:0;z-index:120;background:rgba(2,4,8,.8);display:flex;align-items:flex-end;justify-content:center;padding:0}
+  .mdl-c{width:100%;max-width:680px;max-height:88vh;overflow-y:auto;border-radius:20px 20px 0 0;border:1px solid var(--edge);background:#0a1020;padding:18px 16px calc(env(safe-area-inset-bottom,0px) + 18px)}
+  @media(min-width:700px){.mdl{align-items:center}.mdl-c{border-radius:20px}}
+  .mdl-c h4{font-size:15px;margin-bottom:4px;word-break:break-all}
+  .mdl-c .sm{font-size:12px;color:var(--dim);margin-bottom:12px}
+  .mdl-c pre{max-height:240px;overflow:auto;padding:12px;border-radius:12px;border:1px solid var(--edge);background:rgba(0,0,0,.45);font:11.5px/1.6 var(--mono);white-space:pre-wrap;word-break:break-all;margin-bottom:12px;-webkit-user-select:text;user-select:text}
+  .mdl-c .btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .igrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .igrid button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 4px;border-radius:12px;border:1px solid var(--edge);background:rgba(255,255,255,.03);color:var(--dim);font:10.5px var(--sans);cursor:pointer}
+  .igrid button svg{width:24px;height:24px;color:var(--ink)}
+  .igrid button.on{border-color:var(--mint);color:var(--mint)}
+  .igrid button.on svg{color:var(--mint)}
+
+</style>
+</head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="vig" aria-hidden="true"></div>
+
+<nav class="nav">
+  <div class="nav-in">
+    <a class="brand" href="#top" id="brand"><span class="logo" id="logo"></span><span data-k="siteName"></span><span class="pro" id="proNav"></span></a>
+    <div class="links"><a href="#tool" data-k="navTool"></a><a href="#features" id="lnkFeat" data-k="navFeatures"></a><a href="#how" id="lnkHow" data-k="navHow"></a><a href="#faq" id="lnkFaq" data-k="navFaq"></a></div>
+    <a class="nav-cta" href="#tool" data-k="navCta"></a>
+  </div>
+</nav>
+
+<main class="wrap" id="top">
+
+  <header class="hero">
+    <div class="badge"><b id="heroTag"></b><span data-k="heroBadge"></span></div>
+    <h1><span data-k="heroT1"></span><br id="heroBr"><span data-k="heroT2"></span></h1>
+    <p class="sub" data-k="heroSub" data-rich></p>
+    <div class="cta-row">
+      <a class="btn p" href="#tool"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m6 13 6 6 6-6"/></svg><span data-k="cta1"></span></a>
+      <a class="btn g" href="#how" data-k="cta2"></a>
+    </div>
+    <div class="trust" id="trust"></div>
+  </header>
+
+  <div class="marquee" id="marqueeBox" aria-hidden="true"><div class="mq" id="mq"></div></div>
+
+  <section class="tool" id="tool">
+    <div class="frame">
+      <div class="card" id="card">
+        <div class="card-head">
+          <h2 data-k="toolTitle"></h2>
+          <span class="live"><i></i><span id="engineLabel">Engine</span></span>
+        </div>
+
+        <div class="seg" id="seg" data-mode="decrypt" role="tablist" aria-label="Mode">
+          <span class="thumb"></span>
+          <button class="seg-btn active" data-mode="decrypt" role="tab" aria-selected="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg><span data-k="labelDecrypt"></span>
+          </button>
+          <button class="seg-btn" data-mode="encrypt" role="tab" aria-selected="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span data-k="labelEncrypt"></span>
+          </button>
+        </div>
+
+        <div class="drop" id="drop" role="button" tabindex="0" aria-label="Choose a file">
+          <div class="drop-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg></div>
+          <div class="drop-title" data-k="dropTitle"></div>
+          <div class="drop-sub" data-k="dropSub"></div>
+        </div>
+        <input type="file" id="fileInput">
+
+        <div class="chip" id="chip">
+          <svg class="f" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
+          <span class="fname" id="fname"></span><span class="fsize" id="fsize"></span>
+          <button class="x" id="clearBtn" title="Remove file" aria-label="Remove file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+        </div>
+
+        <button class="run" id="runBtn" disabled>Decrypt file</button>
+
+        <ol class="steps" id="steps"><li>Read</li><li>Key</li><li>Cipher</li><li>Done</li></ol>
+
+        <div class="term" id="term">
+          <div class="term-bar"><i></i><i></i><i></i><span>activity log</span></div>
+          <div class="log" id="log"></div>
+        </div>
+
+        <div class="result" id="result">
+          <div class="r-top">
+            <div class="ok-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></div>
+            <div class="r-meta"><small id="resultLabel">Ready</small><span id="resultName"></span></div>
+          </div>
+          <div class="r-stats">
+            <div><b id="sIn">–</b><small>Input</small></div>
+            <div><b id="sOut">–</b><small>Output</small></div>
+            <div><b id="sTime">–</b><small>Time</small></div>
+          </div>
+          <button class="dl" id="dlBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12"/><path d="m7 11 5 5 5-5"/><path d="M5 20h14"/></svg><span data-k="dlText"></span></button>
+          <button class="more-toggle" id="moreToggle" data-k="moreText"></button>
+          <div class="more" id="more">
+            <button id="altBtn">Alternate download</button>
+            <button id="shareBtn">Share / Save to…</button>
+            <button id="copyBtn">Copy text</button>
+            <button id="b64Btn">Copy Base64</button>
+            <p>APK ke andar kabhi-kabhi app download block kar deti hai. Aise me <b>Alternate download</b> ya <b>Share</b> try karo, ya decrypted text <b>Copy</b> karke kisi bhi editor me paste &amp; save kar lo.</p>
+          </div>
+          <div class="pv" id="pv">
+            <div class="pv-tabs"><button class="on" id="tabText">Text preview</button><button id="tabHex">Hex view</button></div>
+            <pre id="pvBody"></pre>
+          </div>
+        </div>
+
+        <div class="info">
+          <span id="keyRow">Key: <code data-k="keyLabel"></code></span>
+          <span>This session: <code id="count">0</code> files</span>
+        </div>
+        <p class="hist-note" id="histNote" data-k="histNote" hidden></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="s" id="features">
+    <div class="s-head rv"><h3 data-k="featuresTitle"></h3><p data-k="featuresSub"></p></div>
+    <div class="grid two" id="featGrid"></div>
+  </section>
+
+  <section class="s" id="how">
+    <div class="s-head rv"><h3 data-k="howTitle"></h3></div>
+    <div class="how" id="howList"></div>
+  </section>
+
+  <section class="s" id="faq">
+    <div class="s-head rv"><h3 data-k="faqTitle"></h3></div>
+    <div class="rv" id="faqList"></div>
+  </section>
+
+  <footer>
+    <b data-k="footerBrand"></b> · <span data-k="footerText"></span><br>
+    <span data-k="footerLine2"></span>
+  </footer>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="adm" id="adm" hidden></div>
+<script type="application/json" id="baked-cfg">null</script>
+<script id="aes-engine">
+
+var AESJS = (function(){
+  var sbox = new Uint8Array(256), isbox = new Uint8Array(256);
+  (function(){
+    var p = 1, q = 1;
+    function rotl(x, n){ return ((x << n) | (x >>> (8 - n))) & 0xff; }
+    do {
+      p = (p ^ (p << 1) ^ ((p & 0x80) ? 0x11b : 0)) & 0xff;
+      q ^= q << 1; q &= 0xff;
+      q ^= q << 2; q &= 0xff;
+      q ^= q << 4; q &= 0xff;
+      if (q & 0x80) q ^= 0x09;
+      var x = q ^ rotl(q,1) ^ rotl(q,2) ^ rotl(q,3) ^ rotl(q,4);
+      sbox[p] = (x ^ 0x63) & 0xff;
+    } while (p !== 1);
+    sbox[0] = 0x63;
+    for (var i = 0; i < 256; i++) isbox[sbox[i]] = i;
+  })();
+
+  function gm(a, b){
+    var r = 0;
+    while (b){ if (b & 1) r ^= a; a = ((a << 1) ^ ((a & 0x80) ? 0x1b : 0)) & 0xff; b >>= 1; }
+    return r;
+  }
+  function mk(n){ var t = new Uint8Array(256); for (var i = 0; i < 256; i++) t[i] = gm(i, n); return t; }
+  var m2 = mk(2), m3 = mk(3), m9 = mk(9), m11 = mk(11), m13 = mk(13), m14 = mk(14);
+
+  function expandKey(key){
+    if (key.length !== 16) throw new Error('Key must be 16 bytes');
+    var w = new Uint8Array(176), t = new Uint8Array(4), rcon = 1, i, j;
+    w.set(key);
+    for (i = 16; i < 176; i += 4){
+      t[0] = w[i-4]; t[1] = w[i-3]; t[2] = w[i-2]; t[3] = w[i-1];
+      if (i % 16 === 0){
+        var k = t[0];
+        t[0] = sbox[t[1]] ^ rcon; t[1] = sbox[t[2]]; t[2] = sbox[t[3]]; t[3] = sbox[k];
+        rcon = ((rcon << 1) ^ ((rcon & 0x80) ? 0x1b : 0)) & 0xff;
+      }
+      for (j = 0; j < 4; j++) w[i+j] = w[i-16+j] ^ t[j];
+    }
+    return w;
+  }
+
+  var tmp = new Uint8Array(16);
+
+  function addRK(s, rk, r){ var o = r * 16; for (var i = 0; i < 16; i++) s[i] ^= rk[o+i]; }
+
+  function encBlock(s, rk){
+    var r, c, i, a0, a1, a2, a3;
+    addRK(s, rk, 0);
+    for (r = 1; r <= 10; r++){
+      for (c = 0; c < 4; c++) for (i = 0; i < 4; i++) tmp[4*c+i] = sbox[s[4*((c+i)&3)+i]];
+      if (r < 10){
+        for (c = 0; c < 4; c++){
+          a0 = tmp[4*c]; a1 = tmp[4*c+1]; a2 = tmp[4*c+2]; a3 = tmp[4*c+3];
+          s[4*c]   = m2[a0] ^ m3[a1] ^ a2 ^ a3;
+          s[4*c+1] = a0 ^ m2[a1] ^ m3[a2] ^ a3;
+          s[4*c+2] = a0 ^ a1 ^ m2[a2] ^ m3[a3];
+          s[4*c+3] = m3[a0] ^ a1 ^ a2 ^ m2[a3];
+        }
+      } else {
+        for (i = 0; i < 16; i++) s[i] = tmp[i];
+      }
+      addRK(s, rk, r);
+    }
+  }
+
+  function decBlock(s, rk){
+    var r, c, i, a0, a1, a2, a3;
+    addRK(s, rk, 10);
+    for (r = 9; r >= 0; r--){
+      for (c = 0; c < 4; c++) for (i = 0; i < 4; i++) tmp[4*((c+i)&3)+i] = isbox[s[4*c+i]];
+      for (i = 0; i < 16; i++) s[i] = tmp[i];
+      addRK(s, rk, r);
+      if (r > 0){
+        for (c = 0; c < 4; c++){
+          a0 = s[4*c]; a1 = s[4*c+1]; a2 = s[4*c+2]; a3 = s[4*c+3];
+          s[4*c]   = m14[a0] ^ m11[a1] ^ m13[a2] ^ m9[a3];
+          s[4*c+1] = m9[a0]  ^ m14[a1] ^ m11[a2] ^ m13[a3];
+          s[4*c+2] = m13[a0] ^ m9[a1]  ^ m14[a2] ^ m11[a3];
+          s[4*c+3] = m11[a0] ^ m13[a1] ^ m9[a2]  ^ m14[a3];
+        }
+      }
+    }
+  }
+
+  function decrypt(key, iv, data){
+    if (data.length === 0 || data.length % 16 !== 0) throw new Error('BAD_LENGTH');
+    var rk = expandKey(key), out = new Uint8Array(data.length), blk = new Uint8Array(16), prev = iv, i, j;
+    for (i = 0; i < data.length; i += 16){
+      for (j = 0; j < 16; j++) blk[j] = data[i+j];
+      decBlock(blk, rk);
+      for (j = 0; j < 16; j++) out[i+j] = blk[j] ^ prev[j];
+      prev = data.subarray(i, i+16);
+    }
+    var pad = out[out.length-1];
+    if (pad < 1 || pad > 16) throw new Error('BAD_PADDING');
+    for (j = 1; j <= pad; j++) if (out[out.length-j] !== pad) throw new Error('BAD_PADDING');
+    return out.slice(0, out.length - pad);
+  }
+
+  function encrypt(key, iv, data){
+    var rk = expandKey(key), pad = 16 - (data.length % 16), n = data.length + pad;
+    var inp = new Uint8Array(n), out = new Uint8Array(n), blk = new Uint8Array(16), prev = iv, i, j;
+    inp.set(data);
+    for (i = data.length; i < n; i++) inp[i] = pad;
+    for (i = 0; i < n; i += 16){
+      for (j = 0; j < 16; j++) blk[j] = inp[i+j] ^ prev[j];
+      encBlock(blk, rk);
+      out.set(blk, i);
+      prev = out.subarray(i, i+16);
+    }
+    return out;
+  }
+  return { encrypt: encrypt, decrypt: decrypt };
+})();
+if (typeof module !== 'undefined') module.exports = AESJS;
+
+</script>
+<script id="sha-lib">
+window.SHA = (function(){
+  var K = [], H0 = [];
+  (function(){
+    var primes = [], n = 2, i, j, ok;
+    while (primes.length < 64){
+      ok = true;
+      for (j = 0; j < primes.length; j++){ if (n % primes[j] === 0){ ok = false; break; } }
+      if (ok) primes.push(n);
+      n++;
+    }
+    for (i = 0; i < 64; i++) K[i] = (Math.pow(primes[i], 1/3) % 1) * 4294967296 | 0;
+    for (i = 0; i < 8; i++) H0[i] = (Math.pow(primes[i], 1/2) % 1) * 4294967296 | 0;
+  })();
+  function ror(x, n){ return (x >>> n) | (x << (32 - n)); }
+  function sha256(msg){
+    var l = msg.length, n = ((l + 9 + 63) >> 6) << 6, buf = new Uint8Array(n), i, o;
+    buf.set(msg); buf[l] = 0x80;
+    var bits = l * 8, hi = Math.floor(l / 536870912);
+    buf[n-8] = (hi >>> 24) & 255; buf[n-7] = (hi >>> 16) & 255; buf[n-6] = (hi >>> 8) & 255; buf[n-5] = hi & 255;
+    buf[n-4] = (bits >>> 24) & 255; buf[n-3] = (bits >>> 16) & 255; buf[n-2] = (bits >>> 8) & 255; buf[n-1] = bits & 255;
+    var h = H0.slice(), w = new Array(64);
+    for (o = 0; o < n; o += 64){
+      for (i = 0; i < 16; i++) w[i] = (buf[o+4*i] << 24) | (buf[o+4*i+1] << 16) | (buf[o+4*i+2] << 8) | buf[o+4*i+3];
+      for (i = 16; i < 64; i++){
+        var s0 = ror(w[i-15], 7) ^ ror(w[i-15], 18) ^ (w[i-15] >>> 3);
+        var s1 = ror(w[i-2], 17) ^ ror(w[i-2], 19) ^ (w[i-2] >>> 10);
+        w[i] = (w[i-16] + s0 + w[i-7] + s1) | 0;
+      }
+      var a = h[0], b = h[1], c = h[2], d = h[3], e = h[4], f = h[5], g = h[6], hh = h[7];
+      for (i = 0; i < 64; i++){
+        var S1 = ror(e, 6) ^ ror(e, 11) ^ ror(e, 25), ch = (e & f) ^ (~e & g);
+        var t1 = (hh + S1 + ch + K[i] + w[i]) | 0;
+        var S0 = ror(a, 2) ^ ror(a, 13) ^ ror(a, 22), maj = (a & b) ^ (a & c) ^ (b & c);
+        var t2 = (S0 + maj) | 0;
+        hh = g; g = f; f = e; e = (d + t1) | 0; d = c; c = b; b = a; a = (t1 + t2) | 0;
+      }
+      h[0] = (h[0] + a) | 0; h[1] = (h[1] + b) | 0; h[2] = (h[2] + c) | 0; h[3] = (h[3] + d) | 0;
+      h[4] = (h[4] + e) | 0; h[5] = (h[5] + f) | 0; h[6] = (h[6] + g) | 0; h[7] = (h[7] + hh) | 0;
+    }
+    var out = new Uint8Array(32);
+    for (i = 0; i < 8; i++){ out[4*i] = h[i] >>> 24; out[4*i+1] = (h[i] >>> 16) & 255; out[4*i+2] = (h[i] >>> 8) & 255; out[4*i+3] = h[i] & 255; }
+    return out;
+  }
+  function enc(s){ return new TextEncoder().encode(s); }
+  function hex(u){ var s = ''; for (var i = 0; i < u.length; i++) s += (u[i] < 16 ? '0' : '') + u[i].toString(16); return s; }
+  function hashPass(pass, salt){
+    var sb = enc(salt), h = sha256(enc(salt + ':' + pass)), m, i;
+    for (i = 0; i < 3000; i++){ m = new Uint8Array(h.length + sb.length); m.set(h); m.set(sb, h.length); h = sha256(m); }
+    return hex(h);
+  }
+  function make(pass){
+    var r = new Uint8Array(12), s = '', i;
+    if (window.crypto && crypto.getRandomValues) crypto.getRandomValues(r); else for (i = 0; i < 12; i++) r[i] = Math.floor(Math.random() * 256);
+    s = hex(r);
+    return s + ':' + hashPass(pass, s);
+  }
+  function verify(pass, stored){
+    if (!stored) return false;
+    var p = stored.split(':'); if (p.length !== 2) return false;
+    return hashPass(pass, p[0]) === p[1];
+  }
+  return { sha256: sha256, hex: hex, make: make, verify: verify };
+})();
+
+</script>
+<script id="js-core">
+(function(){
+'use strict';
+var RC = window.RC = {};
+var $ = function(id){ return document.getElementById(id); };
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function rich(s){ return esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>'); }
+RC.esc = esc; RC.clone = clone; RC.$ = $;
+
+/* ---------------- icons ---------------- */
+var ICONS = {
+  'shield':'<path d="M12 3 4 6v6c0 5 3.4 8 8 9 4.6-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
+  'bolt':'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
+  'wifi-off':'<path d="M2 8.5a15 15 0 0 1 20 0"/><path d="M5.5 12a10 10 0 0 1 13 0"/><path d="M9 15.5a5 5 0 0 1 6 0"/><path d="M3 3l18 18"/>',
+  'swap':'<path d="M7 7h12l-3-3"/><path d="M17 17H5l3 3"/>',
+  'lock':'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  'unlock':'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/>',
+  'key':'<circle cx="8" cy="15" r="4"/><path d="m11 12 9-9"/><path d="m16 7 3 3"/>',
+  'download':'<path d="M12 4v12"/><path d="m7 11 5 5 5-5"/><path d="M5 20h14"/>',
+  'upload':'<path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/>',
+  'file':'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>',
+  'star':'<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+  'heart':'<path d="M12 20s-7-4.4-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.6-9 9-9 9z"/>',
+  'globe':'<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18"/>',
+  'cpu':'<rect x="6" y="6" width="12" height="12" rx="2"/><rect x="9.5" y="9.5" width="5" height="5"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/>',
+  'eye-off':'<path d="M3 3l18 18"/><path d="M10.6 6.2A9.5 9.5 0 0 1 12 6c5 0 8.5 4 10 6-.7 1-1.8 2.2-3.2 3.3"/><path d="M6.2 7.6C4.4 9 3 10.8 2 12c1.5 2 5 6 10 6 1.3 0 2.5-.3 3.6-.7"/>',
+  'check':'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  'code':'<path d="m8 7-5 5 5 5"/><path d="m16 7 5 5-5 5"/><path d="m14 4-4 16"/>',
+  'rocket':'<path d="M5 15c-1.5 1.3-2 5-2 5s3.7-.5 5-2"/><path d="M12 15 9 12a22 22 0 0 1 2-4c2-3 5-5 10-5 0 5-2 8-5 10a22 22 0 0 1-4 2z"/><circle cx="15" cy="9" r="1.2"/>',
+  'gift':'<rect x="3" y="8" width="18" height="4"/><path d="M12 8v13"/><path d="M5 12v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8"/><path d="M7.5 8C6 8 5 7 5 5.8 5 4.5 6 4 7 4c2.5 0 5 4 5 4s2.5-4 5-4c1 0 2 .5 2 1.8C19 7 18 8 16.5 8"/>',
+  'bell':'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 20a2 2 0 0 0 4 0"/>',
+  'bat':'<path d="m14 4 6 6-9 9-3-1-1-3z"/><path d="m5 19-2 2"/><circle cx="18" cy="18" r="2"/>',
+  'sparkle':'<path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><path d="m12 8 1.5 3.5L17 13l-3.5 1.5L12 18l-1.5-3.5L7 13l3.5-1.5z"/>',
+  'user':'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>',
+  'phone':'<rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18h2"/>',
+  'image':'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/>',
+  'settings':'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/>',
+  'hex':'<path d="M12 2.5 20 7v10l-8 4.5L4 17V7z"/><rect x="9" y="11" width="6" height="5" rx="1.2"/><path d="M10.2 11V9.6a1.8 1.8 0 0 1 3.6 0V11"/>'
+};
+RC.ICONS = ICONS;
+function ICO(n, sw){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="'+(sw||2)+'" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[n]||ICONS.sparkle)+'</svg>'; }
+RC.ICO = ICO;
+
+/* ---------------- defaults ---------------- */
+var DEF = {
+  siteName:'RC24 Decrypter', proText:'PRO', logoIcon:'hex', logoImg:'',
+  navTool:'Tool', navFeatures:'Features', navHow:'How it works', navFaq:'FAQ', navCta:'Open tool',
+  heroBadge:'Real Cricket 24 toolkit · by Sohail Mods',
+  heroT1:'Decrypt RC24 assets', heroT2:'in one tap.',
+  heroSub:'Squad, jersey aur texture-map files ko game ki apni key se **encrypt ya decrypt** karo. Sab kuch device ke andar — **koi upload nahi**, koi server nahi.',
+  cta1:'Start now', cta2:'How it works',
+  trust:['100% offline','Zero uploads','AES-128-CBC · PKCS7'],
+  showMarquee:true, marquee:['Squads','Jerseys','Texture maps','AES-128-CBC','Decrypt','Encrypt','100% offline','Sohail Mods'],
+  toolTitle:'Cipher workspace', modeDecrypt:true, modeEncrypt:true, labelDecrypt:'Decrypt', labelEncrypt:'Encrypt',
+  dropTitle:'File choose karo', dropSub:'ya yahan drag & drop karo',
+  btnDecrypt:'Decrypt file', btnEncrypt:'Encrypt file', dlText:'Download file', moreText:'Download na hua? Dusre options ▾',
+  keyLabel:'SOHAIL_MODS', showKey:true, showPreview:true,
+  showFeatures:true, featuresTitle:'Built for modders', featuresSub:'Seedha kaam, bina kisi setup ke.',
+  features:[
+    {icon:'wifi-off', title:'Fully offline', text:'Internet, localhost ya server ki zaroorat nahi. File kholo aur kaam shuru.'},
+    {icon:'bolt', title:'Instant results', text:'Squad files ek second se kam me process hoti hain, preview ke saath.'},
+    {icon:'swap', title:'Encrypt & decrypt', text:'Edit karke wapas encrypt karo — game wahi format padhta hai.'},
+    {icon:'shield', title:'Private by design', text:'Files device se bahar nahi jaati. Na upload, na tracking.'}
+  ],
+  showHow:true, howTitle:'Teen step, bas',
+  how:[
+    {title:'File choose karo', text:'Squad, jersey ya texture-map file select karo ya drop kar do.'},
+    {title:'Mode select karke run karo', text:'Decrypt ya Encrypt chuno aur button dabao.'},
+    {title:'Download ya copy karo', text:'Result download karo, share karo ya text copy kar lo.'}
+  ],
+  showFaq:true, faqTitle:'Questions',
+  faq:[
+    {q:'APK me download start nahi ho raha?', a:'Pehle “Download file” dabao. Agar app download block kare to “Dusre options” kholo — Alternate download, Share / Save to… ya Copy text use karo. Decrypted text copy karke kisi bhi editor me paste karke save kar sakte ho.'},
+    {q:'Kya meri file upload hoti hai?', a:'Nahi. Processing poori tarah is page ke andar, tumhare device par hoti hai.'},
+    {q:'Kaunsi files supported hain?', a:'Real Cricket 24 ki encrypted asset files — squad, jersey aur texture-map.'},
+    {q:'Encrypt ke baad file game me chalegi?', a:'Output me pehle 16 bytes IV hote hain, uske baad ciphertext — wahi layout jo decrypt karte waqt padha jata hai.'}
+  ],
+  footerBrand:'MS TECH', footerText:'Sohail Mods', footerLine2:'Local-only processing — internet ya localhost ki zaroorat nahi.',
+  colors:{mint:'#35f5a0', cyan:'#38d6ff', violet:'#8b6cff', gold:'#ffd98a', gold2:'#ff9f4a', bg:'#04060b'},
+  fx:{on:true, density:1},
+  history:{on:true, max:100, showNote:true},
+  histNote:'Processed files sirf is device ki local history me save hote hain — kahin upload nahi hote.',
+  passHash:''
+};
+RC.DEF = DEF;
+
+/* ---------------- storage ---------------- */
+var mem = {};
+function lsGet(k){ try{ var v = localStorage.getItem(k); return v === null ? (mem[k] || null) : v; }catch(e){ return mem[k] || null; } }
+function lsSet(k,v){ mem[k] = v; try{ localStorage.setItem(k, v); }catch(e){} }
+function lsDel(k){ delete mem[k]; try{ localStorage.removeItem(k); }catch(e){} }
+
+function merge(base, over){
+  var k, out;
+  if (Array.isArray(base)) return Array.isArray(over) ? clone(over) : clone(base);
+  if (base && typeof base === 'object'){
+    out = {};
+    for (k in base) out[k] = merge(base[k], (over && typeof over === 'object') ? over[k] : undefined);
+    return out;
+  }
+  return (over !== undefined && typeof over === typeof base) ? over : base;
+}
+var baked = null;
+try{ baked = JSON.parse($('baked-cfg').textContent || 'null'); }catch(e){ baked = null; }
+RC.baked = baked;
+function load(){
+  var c = merge(DEF, baked), loc = null;
+  try{ loc = JSON.parse(lsGet('rc24cfg') || 'null'); }catch(e){}
+  if (loc) c = merge(c, loc);
+  return c;
+}
+var cfg = RC.cfg = load();
+RC.save = function(){ lsSet('rc24cfg', JSON.stringify(cfg)); };
+RC.resetAll = function(){ lsDel('rc24cfg'); cfg = RC.cfg = merge(DEF, baked); RC.apply(true); };
+RC.importCfg = function(obj){ cfg = RC.cfg = merge(merge(DEF, baked), obj); RC.save(); RC.apply(true); };
+var saveT, applyT;
+RC.touch = function(){ RC.apply(); clearTimeout(saveT); saveT = setTimeout(RC.save, 250); };
+
+/* ---------------- toast ---------------- */
+var tt;
+RC.toast = function(msg){ var t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(function(){ t.classList.remove('show'); }, 3200); };
+
+/* ---------------- colors ---------------- */
+function hexOk(h){ return typeof h === 'string' && /^#[0-9a-f]{6}$/i.test(h); }
+function rgb(h){ return parseInt(h.slice(1,3),16)+','+parseInt(h.slice(3,5),16)+','+parseInt(h.slice(5,7),16); }
+RC.fxColors = ['53,245,160','56,214,255','139,108,255','255,217,138'];
+function applyColors(){
+  var r = document.documentElement.style, c = cfg.colors, D = DEF.colors, n;
+  ['mint','cyan','violet','gold','gold2','bg'].forEach(function(k){
+    var v = hexOk(c[k]) ? c[k] : D[k];
+    r.setProperty('--'+k, v);
+    if (k !== 'bg') r.setProperty('--'+k+'-rgb', rgb(v));
+  });
+  var bgc = hexOk(c.bg) ? c.bg : D.bg;
+  document.body.style.backgroundColor = bgc;
+  var tm = document.querySelector('meta[name=theme-color]'); if (tm) tm.setAttribute('content', bgc);
+  RC.fxColors = ['mint','cyan','violet','gold'].map(function(k){ return rgb(hexOk(c[k]) ? c[k] : D[k]); });
+}
+
+/* ---------------- render ---------------- */
+var booted = false, sig = {};
+function same(key, val){ var s = JSON.stringify(val); if (sig[key] === s) return true; sig[key] = s; return false; }
+function inCls(){ return booted ? ' in' : ''; }
+function bindText(){
+  var els = document.querySelectorAll('[data-k]'), i, el, v;
+  for (i = 0; i < els.length; i++){
+    el = els[i]; v = cfg[el.getAttribute('data-k')]; if (v === undefined) continue;
+    if (el.hasAttribute('data-rich')){ var h = rich(v); if (el.innerHTML !== h) el.innerHTML = h; }
+    else if (el.textContent !== v) el.textContent = v;
+  }
+}
+function renderLogo(){
+  if (same('logo', [cfg.logoIcon, cfg.logoImg])) return;
+  var box = $('logo'); box.innerHTML = '';
+  if (cfg.logoImg && /^data:image\//.test(cfg.logoImg)){ var im = document.createElement('img'); im.alt = ''; im.setAttribute('src', cfg.logoImg); box.appendChild(im); }
+  else box.innerHTML = ICO(ICONS[cfg.logoIcon] ? cfg.logoIcon : 'hex', 1.8);
+}
+function renderLists(){
+  if (!same('trust', cfg.trust)) $('trust').innerHTML = cfg.trust.filter(Boolean).map(function(t){ return '<span>'+ICO('check',2.2)+esc(t)+'</span>'; }).join('');
+  if (!same('mq', cfg.marquee)){
+    var w = cfg.marquee.filter(Boolean), h = '', r, i; if (!w.length) w = [' '];
+    for (r = 0; r < 4; r++) for (i = 0; i < w.length; i++) h += '<span>'+esc(w[i])+'</span>';
+    $('mq').innerHTML = h;
+  }
+  if (!same('feat', cfg.features)) $('featGrid').innerHTML = cfg.features.map(function(f){ return '<div class="feat rv'+inCls()+'"><div class="ic">'+ICO(f.icon)+'</div><h4>'+esc(f.title)+'</h4><p>'+esc(f.text)+'</p></div>'; }).join('');
+  if (!same('how', cfg.how)) $('howList').innerHTML = cfg.how.map(function(s,i){ return '<div class="rv'+inCls()+'"><em>'+(i+1)+'</em><div><h4>'+esc(s.title)+'</h4><p>'+esc(s.text)+'</p></div></div>'; }).join('');
+  if (!same('faq', cfg.faq)) $('faqList').innerHTML = cfg.faq.map(function(f){ return '<details><summary>'+esc(f.q)+'</summary><p>'+esc(f.a)+'</p></details>'; }).join('');
+  observe();
+}
+var io = null;
+function observe(){
+  var rv = document.querySelectorAll('.rv:not(.in)');
+  if (!('IntersectionObserver' in window)){ Array.prototype.forEach.call(rv, function(e){ e.classList.add('in'); }); return; }
+  if (!io) io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); }, {threshold:.12});
+  Array.prototype.forEach.call(rv, function(el){ io.observe(el); });
+}
+function show(el, on){ if (el) el.style.display = on ? '' : 'none'; }
+
+RC.apply = function(first){
+  applyColors(); bindText(); renderLogo(); renderLists();
+  document.title = cfg.siteName + (cfg.proText ? ' ' + cfg.proText : '') + ' — ' + cfg.footerText;
+  var pro = $('proNav'); pro.textContent = cfg.proText; pro.hidden = !cfg.proText;
+  var tag = $('heroTag'); tag.textContent = cfg.proText; tag.style.display = cfg.proText ? '' : 'none';
+  $('heroBr').style.display = cfg.heroT2 ? '' : 'none';
+  show($('marqueeBox'), cfg.showMarquee);
+  show($('features'), cfg.showFeatures); show($('how'), cfg.showHow); show($('faq'), cfg.showFaq);
+  $('lnkFeat').hidden = !cfg.showFeatures; $('lnkHow').hidden = !cfg.showHow; $('lnkFaq').hidden = !cfg.showFaq;
+  show($('keyRow'), cfg.showKey); show($('pv'), cfg.showPreview);
+  $('histNote').hidden = !(cfg.history.on && cfg.history.showNote && cfg.histNote);
+  if (RC.afterApply) RC.afterApply();
+  if (RC.fxWake) RC.fxWake();
+};
+
+/* ---------------- file helpers (APK-friendly) ---------------- */
+function clickA(href, name){
+  var a = document.createElement('a'); a.href = href; a.download = name; a.rel = 'noopener'; a.style.display = 'none';
+  document.body.appendChild(a); a.click(); setTimeout(function(){ document.body.removeChild(a); }, 500);
+}
+RC.dl = function(blob, name){
+  try{
+    if (navigator.msSaveBlob){ navigator.msSaveBlob(blob, name); return true; }
+    var url = URL.createObjectURL(blob); clickA(url, name); setTimeout(function(){ URL.revokeObjectURL(url); }, 8000); return true;
+  }catch(e){ return false; }
+};
+RC.dlAlt = function(blob, name){
+  var fr = new FileReader();
+  fr.onload = function(){ try{ clickA(fr.result, name); RC.toast('Alternate download chal raha hai…'); }catch(e){ RC.toast('Ye method is device pe nahi chala — Share ya Copy use karo'); } };
+  fr.onerror = function(){ RC.toast('File read error'); };
+  fr.readAsDataURL(blob);
+};
+RC.share = async function(bytes, name, isText){
+  try{
+    var f = new File([bytes], name, {type:'text/plain'});
+    if (navigator.canShare && navigator.canShare({files:[f]})){ await navigator.share({files:[f], title:name}); return; }
+    if (navigator.share && isText){ await navigator.share({title:name, text:new TextDecoder().decode(bytes)}); return; }
+    RC.toast('Is device pe Share supported nahi — Copy use karo');
+  }catch(e){ if (e && e.name !== 'AbortError') RC.toast('Share nahi ho paya — Copy use karo'); }
+};
+function legacyCopy(text){
+  return new Promise(function(res, rej){
+    var ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly',''); ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+    document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, ta.value.length);
+    var ok = false; try{ ok = document.execCommand('copy'); }catch(e){}
+    document.body.removeChild(ta); ok ? res() : rej(new Error('copy failed'));
+  });
+}
+RC.copyText = function(text){
+  if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text).catch(function(){ return legacyCopy(text); });
+  return legacyCopy(text);
+};
+RC.b64 = function(bytes){ var s = '', CH = 0x8000, i; for (i = 0; i < bytes.length; i += CH) s += String.fromCharCode.apply(null, bytes.subarray(i, i + CH)); return btoa(s); };
+RC.isTextLike = function(bytes){
+  var n = Math.min(bytes.length, 512), np = 0, i, c; if (!n) return false;
+  for (i = 0; i < n; i++){ c = bytes[i]; if (c < 9 || (c > 13 && c < 32)) np++; }
+  return np / n < 0.05;
+};
+RC.fmt = function(b){ if (b < 1024) return b + ' B'; if (b < 1048576) return (b/1024).toFixed(1) + ' KB'; return (b/1048576).toFixed(2) + ' MB'; };
+
+/* ---------------- local history (IndexedDB, falls back to memory) ---------------- */
+var dbP = null, memH = [];
+function openDB(){
+  if (dbP) return dbP;
+  dbP = new Promise(function(res){
+    try{
+      if (!window.indexedDB) return res(null);
+      var rq = indexedDB.open('rc24hist', 1);
+      rq.onupgradeneeded = function(){ var d = rq.result; d.createObjectStore('meta', {keyPath:'id'}); d.createObjectStore('data'); };
+      rq.onsuccess = function(){ res(rq.result); };
+      rq.onerror = rq.onblocked = function(){ res(null); };
+    }catch(e){ res(null); }
+  });
+  return dbP;
+}
+function reqP(r){ return new Promise(function(res, rej){ r.onsuccess = function(){ res(r.result); }; r.onerror = function(){ rej(r.error); }; }); }
+function txDone(t){ return new Promise(function(res){ t.oncomplete = res; t.onerror = t.onabort = res; }); }
+RC.histAdd = function(rec){
+  if (!cfg.history.on) return Promise.resolve();
+  var id = Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+  var meta = {id:id, ts:Date.now(), mode:rec.mode, inName:rec.inName, outName:rec.outName, inSize:rec.inSize, outSize:rec.outSize, engine:rec.engine, ms:rec.ms};
+  var buf = rec.bytes.slice().buffer;
+  return openDB().then(function(db){
+    if (!db){ memH.push({meta:meta, bytes:buf}); return; }
+    var t = db.transaction(['meta','data'], 'readwrite');
+    t.objectStore('meta').put(meta); t.objectStore('data').put(buf, id);
+    return txDone(t);
+  }).then(prune).catch(function(){});
+};
+RC.histList = function(){
+  return openDB().then(function(db){
+    var p = db ? reqP(db.transaction('meta').objectStore('meta').getAll()) : Promise.resolve(memH.map(function(m){ return m.meta; }));
+    return p.then(function(l){ return l.slice().sort(function(a,b){ return b.ts - a.ts; }); });
+  }).catch(function(){ return []; });
+};
+RC.histGet = function(id){
+  return openDB().then(function(db){
+    if (!db){ var m = memH.filter(function(x){ return x.meta.id === id; })[0]; return m ? new Uint8Array(m.bytes) : null; }
+    return reqP(db.transaction('data').objectStore('data').get(id)).then(function(b){ return b ? new Uint8Array(b) : null; });
+  });
+};
+RC.histDel = function(id){
+  return openDB().then(function(db){
+    if (!db){ memH = memH.filter(function(x){ return x.meta.id !== id; }); return; }
+    var t = db.transaction(['meta','data'], 'readwrite'); t.objectStore('meta').delete(id); t.objectStore('data').delete(id); return txDone(t);
+  }).catch(function(){});
+};
+RC.histClear = function(){
+  return openDB().then(function(db){
+    if (!db){ memH = []; return; }
+    var t = db.transaction(['meta','data'], 'readwrite'); t.objectStore('meta').clear(); t.objectStore('data').clear(); return txDone(t);
+  }).catch(function(){});
+};
+function prune(){
+  return RC.histList().then(function(list){
+    var max = cfg.history.max || 100, total = 0, del = [];
+    list.forEach(function(m, i){ total += m.outSize || 0; if (i >= max || total > 80 * 1048576) del.push(m.id); });
+    return Promise.all(del.map(RC.histDel));
+  });
+}
+
+/* ---------------- bake: export a copy of this page with current settings built in ---------------- */
+RC.bake = function(){
+  var c = document.documentElement.cloneNode(true), q = function(s){ return c.querySelector(s); }, el;
+  el = q('#adm'); if (el){ el.innerHTML = ''; el.setAttribute('hidden',''); }
+  ['#result','#term','#chip'].forEach(function(s){ el = q(s); if (el) el.classList.remove('show'); });
+  el = q('#steps'); if (el) el.classList.remove('on');
+  el = q('#toast'); if (el){ el.textContent = ''; el.classList.remove('show'); }
+  el = q('#log'); if (el) el.innerHTML = '';
+  el = q('#fname'); if (el) el.textContent = ''; el = q('#fsize'); if (el) el.textContent = '';
+  el = q('#runBtn'); if (el) el.setAttribute('disabled','');
+  el = q('#card'); if (el) el.removeAttribute('style');
+  el = q('body'); if (el){ el.classList.remove('adm-open'); }
+  el = q('#baked-cfg'); if (el) el.textContent = JSON.stringify(cfg).replace(/</g, '\\u003c');
+  return '<!DOCTYPE html>\n' + c.outerHTML;
+};
+
+RC.apply(true);
+booted = true;
+observe();
+})();
+
+</script>
+<script id="js-tool">
+(function(){
+'use strict';
+var RC = window.RC, $ = RC.$;
+var KEY_STRING = "realnauticrick20";
+var keyBytes = new TextEncoder().encode(KEY_STRING).slice(0, 16);
+var HAS_SUBTLE = !!(window.crypto && window.crypto.subtle && window.crypto.subtle.importKey);
+
+var mode = "decrypt", selectedFile = null, outBytes = null, outputBlob = null, outputName = "", looksText = false, session = 0, pvMode = 'text', busy = false;
+var drop=$('drop'), fileInput=$('fileInput'), chip=$('chip'), fname=$('fname'), fsize=$('fsize'), clearBtn=$('clearBtn'),
+    runBtn=$('runBtn'), term=$('term'), logEl=$('log'), result=$('result'), resultName=$('resultName'), resultLabel=$('resultLabel'),
+    seg=$('seg'), card=$('card'), stepsEl=$('steps'), pvBody=$('pvBody'), more=$('more');
+var segBtns = Array.prototype.slice.call(document.querySelectorAll('.seg-btn'));
+
+$('engineLabel').textContent = HAS_SUBTLE ? 'WebCrypto engine' : 'Offline AES engine';
+
+function runLabel(){ return mode === 'decrypt' ? RC.cfg.btnDecrypt : RC.cfg.btnEncrypt; }
+function setMode(m, silent){
+  mode = m; seg.setAttribute('data-mode', m);
+  segBtns.forEach(function(b){ var on = b.getAttribute('data-mode') === m; b.classList.toggle('active', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
+  if (!busy) runBtn.textContent = runLabel();
+  if (!silent) resetResult();
+}
+RC.afterApply = function(){
+  var c = RC.cfg, d = c.modeDecrypt, e = c.modeEncrypt;
+  if (!d && !e) d = true;
+  segBtns[0].style.display = d ? '' : 'none'; segBtns[1].style.display = e ? '' : 'none';
+  seg.style.display = (d && e) ? '' : 'none';
+  if (mode === 'decrypt' && !d) setMode('encrypt', true);
+  else if (mode === 'encrypt' && !e) setMode('decrypt', true);
+  else if (!busy) runBtn.textContent = runLabel();
+  if (!outBytes) { /* keep */ }
+};
+
+segBtns.forEach(function(btn){ btn.addEventListener('click', function(){ setMode(btn.getAttribute('data-mode')); }); });
+
+/* file pick */
+drop.addEventListener('click', function(){ fileInput.click(); });
+drop.addEventListener('keydown', function(e){ if (e.key==='Enter'||e.key===' '){ e.preventDefault(); fileInput.click(); } });
+drop.addEventListener('dragover', function(e){ e.preventDefault(); drop.classList.add('drag'); });
+drop.addEventListener('dragleave', function(){ drop.classList.remove('drag'); });
+drop.addEventListener('drop', function(e){ e.preventDefault(); drop.classList.remove('drag'); if (e.dataTransfer && e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]); });
+fileInput.addEventListener('change', function(e){ if (e.target.files.length) handleFile(e.target.files[0]); });
+clearBtn.addEventListener('click', function(e){ e.stopPropagation(); selectedFile=null; fileInput.value=''; chip.classList.remove('show'); runBtn.disabled=true; resetResult(); });
+
+function handleFile(f){ selectedFile=f; fname.textContent=f.name; fsize.textContent=RC.fmt(f.size); chip.classList.add('show'); runBtn.disabled=false; resetResult(); }
+function resetResult(){ result.classList.remove('show'); term.classList.remove('show'); logEl.innerHTML=''; stepsEl.classList.remove('on'); more.classList.remove('open'); outBytes=null; outputBlob=null; }
+function log(msg, type){ term.classList.add('show'); var d=document.createElement('div'); d.className=type||'info'; d.textContent='> '+msg; logEl.appendChild(d); logEl.scrollTop=logEl.scrollHeight; }
+function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+function setStep(i, st){ var li = stepsEl.children[i]; if (li) li.className = st; }
+function resetSteps(){ for (var i=0;i<stepsEl.children.length;i++) stepsEl.children[i].className=''; stepsEl.classList.add('on'); }
+
+function readFile(file){
+  if (file.arrayBuffer) return file.arrayBuffer();
+  return new Promise(function(res, rej){ var fr=new FileReader(); fr.onload=function(){ res(fr.result); }; fr.onerror=function(){ rej(new Error('File read nahi ho payi')); }; fr.readAsArrayBuffer(file); });
+}
+function friendly(e){
+  var m = e && e.message ? e.message : String(e);
+  if (m==='BAD_LENGTH') return 'File ka size AES block (16 bytes) ke hisaab se sahi nahi — ye is key se encrypted file nahi lagti.';
+  if (m==='BAD_PADDING') return 'Decrypt fail — file is key se encrypted nahi hai ya corrupt hai.';
+  return m;
+}
+async function aesRun(op, iv, data){
+  if (HAS_SUBTLE){
+    try {
+      var key = await crypto.subtle.importKey('raw', keyBytes, {name:'AES-CBC'}, false, [op]);
+      var out = op==='decrypt' ? await crypto.subtle.decrypt({name:'AES-CBC', iv:iv}, key, data) : await crypto.subtle.encrypt({name:'AES-CBC', iv:iv}, key, data);
+      return { data:new Uint8Array(out), engine:'WebCrypto' };
+    } catch (e) {
+      if (e && e.name==='OperationError') throw new Error(op==='decrypt' ? 'BAD_PADDING' : 'Encrypt failed');
+    }
+  }
+  await sleep(20);
+  return { data: op==='decrypt' ? AESJS.decrypt(keyBytes, iv, data) : AESJS.encrypt(keyBytes, iv, data), engine:'built-in JS' };
+}
+function randomIV(){ var iv=new Uint8Array(16); if (window.crypto && crypto.getRandomValues) crypto.getRandomValues(iv); else for (var i=0;i<16;i++) iv[i]=Math.floor(Math.random()*256); return iv; }
+
+runBtn.addEventListener('click', async function(){
+  if (!selectedFile) return;
+  var cur = 0, t0 = performance.now(), runMode = mode;
+  busy = true; runBtn.disabled=true; runBtn.classList.add('busy'); runBtn.textContent='Processing…';
+  resetResult(); resetSteps();
+  try {
+    setStep(0,'active'); log('Reading file...');
+    var buf = new Uint8Array(await readFile(selectedFile));
+    log('File size: '+buf.length+' bytes'); await sleep(140); setStep(0,'done');
+    cur = 1; setStep(1,'active'); log('Preparing 128-bit key...'); await sleep(160); setStep(1,'done');
+    cur = 2; setStep(2,'active'); var res, engine;
+    if (runMode==='decrypt'){
+      if (buf.length <= 16) throw new Error('File bahut chhoti hai — encrypted nahi lagti.');
+      log('IV extracted, decrypting AES-CBC...');
+      var r = await aesRun('decrypt', buf.slice(0,16), buf.slice(16)); res = r.data; engine = r.engine;
+      log('Decrypt successful. Output: '+res.length+' bytes','ok');
+      outputName = selectedFile.name.replace(/\.txt$/i,'') + '_decrypted.txt';
+      resultLabel.textContent = 'Decrypted file ready';
+    } else {
+      log('Generating random IV...');
+      var iv = randomIV(); log('Encrypting AES-CBC...');
+      var r2 = await aesRun('encrypt', iv, buf); engine = r2.engine;
+      res = new Uint8Array(16 + r2.data.length); res.set(iv,0); res.set(r2.data,16);
+      log('Encrypt successful. Output: '+res.length+' bytes (IV + ciphertext)','ok');
+      outputName = selectedFile.name.replace(/\.[^.]+$/,'') + '_encrypted.txt';
+      resultLabel.textContent = 'Encrypted file ready';
+    }
+    log('Engine: '+engine); await sleep(120); setStep(2,'done');
+    cur = 3; setStep(3,'done');
+
+    outBytes = res; outputBlob = new Blob([res], {type:'application/octet-stream'});
+    looksText = runMode==='decrypt' && RC.isTextLike(res);
+    $('copyBtn').hidden = !looksText;
+    resultName.textContent = outputName;
+    var ms = Math.round(performance.now()-t0);
+    $('sIn').textContent = RC.fmt(buf.length); $('sOut').textContent = RC.fmt(res.length); $('sTime').textContent = ms+' ms';
+    pvMode = looksText ? 'text' : 'hex'; renderPreview();
+    result.classList.add('show'); session++; $('count').textContent = session;
+    RC.histAdd({mode:runMode, inName:selectedFile.name, outName:outputName, inSize:buf.length, outSize:res.length, engine:engine, ms:ms, bytes:res});
+    setTimeout(function(){ result.scrollIntoView({behavior:'smooth', block:'nearest'}); }, 80);
+  } catch (err) {
+    setStep(cur,'fail'); log('ERROR: '+friendly(err),'err');
+  } finally {
+    busy = false; runBtn.disabled=false; runBtn.classList.remove('busy'); runBtn.textContent = runLabel();
+  }
+});
+
+/* preview */
+function renderPreview(){
+  $('tabText').classList.toggle('on', pvMode==='text'); $('tabHex').classList.toggle('on', pvMode==='hex');
+  if (!outBytes){ pvBody.textContent=''; return; }
+  pvBody.textContent = RC.preview(outBytes, pvMode);
+}
+RC.preview = function(bytes, m){
+  if (m==='text'){
+    var s = new TextDecoder('utf-8',{fatal:false}).decode(bytes.slice(0,3000)).replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g,'·');
+    return s + (bytes.length>3000 ? '\n…' : '');
+  }
+  var out='', n=Math.min(bytes.length,256), i, j, row, asc, b;
+  for (i=0;i<n;i+=16){
+    row=[]; asc='';
+    for (j=0;j<16 && i+j<n;j++){ b=bytes[i+j]; row.push((b<16?'0':'')+b.toString(16)); asc += (b>=32&&b<127)?String.fromCharCode(b):'.'; }
+    out += ('0000'+i.toString(16)).slice(-4)+'  '+row.join(' ')+'  '+asc+'\n';
+  }
+  return out + (bytes.length>256 ? '…' : '');
+};
+$('tabText').addEventListener('click', function(){ pvMode='text'; renderPreview(); });
+$('tabHex').addEventListener('click', function(){ pvMode='hex'; renderPreview(); });
+
+/* downloads */
+$('dlBtn').addEventListener('click', function(){
+  if (!outputBlob) return;
+  if (RC.dl(outputBlob, outputName)) RC.toast('Download shuru… agar na ho to "Dusre options" use karo');
+  else { RC.toast('Download error — dusre options try karo'); more.classList.add('open'); }
+});
+$('moreToggle').addEventListener('click', function(){ more.classList.toggle('open'); });
+$('altBtn').addEventListener('click', function(){ if (outputBlob) RC.dlAlt(outputBlob, outputName); });
+$('shareBtn').addEventListener('click', function(){ if (outBytes) RC.share(outBytes, outputName, looksText); });
+$('copyBtn').addEventListener('click', function(){
+  if (!outBytes) return;
+  RC.copyText(new TextDecoder('utf-8').decode(outBytes)).then(function(){ RC.toast('Text copy ho gaya ✓'); }, function(){ RC.toast('Copy nahi hua — preview me long-press karke select karo'); });
+});
+$('b64Btn').addEventListener('click', function(){
+  if (!outBytes) return;
+  RC.copyText(RC.b64(outBytes)).then(function(){ RC.toast('Base64 copy ho gaya ✓'); }, function(){ RC.toast('Copy nahi hua'); });
+});
+
+/* spotlight */
+card.addEventListener('pointermove', function(e){ var r=card.getBoundingClientRect(); card.style.setProperty('--mx',(e.clientX-r.left)+'px'); card.style.setProperty('--my',(e.clientY-r.top)+'px'); });
+
+/* hidden entry for APK (no address bar): tap the logo 7 times */
+var taps = 0, tapT;
+$('brand').addEventListener('click', function(e){
+  taps++; clearTimeout(tapT); tapT = setTimeout(function(){ taps = 0; }, 4000);
+  if (taps >= 7){ taps = 0; e.preventDefault(); location.hash = '#admin'; }
+});
+
+RC.afterApply();
+})();
+
+</script>
+<script id="js-admin">
+(function(){
+'use strict';
+var RC = window.RC, adm = document.getElementById('adm'), ICO = RC.ICO;
+var tab = 'general', authed = false, byHash = false, fails = 0, lockUntil = 0, filter = 'all', escBound = false;
+try{ authed = sessionStorage.getItem('rc24adm') === '1'; }catch(e){}
+function setAuthed(v){ authed = v; try{ v ? sessionStorage.setItem('rc24adm','1') : sessionStorage.removeItem('rc24adm'); }catch(e){} }
+
+function h(tag, a, kids){
+  var e = document.createElement(tag), k;
+  if (a) for (k in a){
+    if (k === 'class') e.className = a[k];
+    else if (k === 'html') e.innerHTML = a[k];
+    else if (k === 'text') e.textContent = a[k];
+    else if (k.slice(0,2) === 'on') e.addEventListener(k.slice(2), a[k]);
+    else e.setAttribute(k, a[k]);
+  }
+  (kids || []).forEach(function(c){ if (c == null) return; e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+  return e;
+}
+function getP(p){ var o = RC.cfg, ks = p.split('.'), i; for (i = 0; i < ks.length; i++){ if (o == null) return o; o = o[ks[i]]; } return o; }
+function setP(p, v){ var o = RC.cfg, ks = p.split('.'), i; for (i = 0; i < ks.length - 1; i++) o = o[ks[i]]; o[ks[ks.length-1]] = v; RC.touch(); flash(); }
+var svT;
+function flash(){ var s = document.getElementById('svd'); if (!s) return; s.classList.add('on'); clearTimeout(svT); svT = setTimeout(function(){ s.classList.remove('on'); }, 1200); }
+
+/* ---------- routing ---------- */
+function hashAdmin(){ return /^#\/?admin/i.test(location.hash); }
+function pathAdmin(){ return /admin\.html?$/i.test(location.pathname) || /[?&]admin(=|&|$)/i.test(location.search); }
+function openAdm(){
+  adm.hidden = false; document.body.classList.add('adm-open'); render();
+  if (!escBound){ escBound = true; document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !adm.hidden){ var m = adm.querySelector('.mdl'); if (m) m.parentNode.removeChild(m); else closeAdm(); } }); }
+}
+function closeAdm(){
+  adm.hidden = true; adm.innerHTML = ''; document.body.classList.remove('adm-open');
+  if (hashAdmin()){ try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){ location.hash = ''; } }
+}
+window.addEventListener('hashchange', function(){ if (hashAdmin()){ byHash = true; openAdm(); } else if (byHash && !adm.hidden){ closeAdm(); } });
+if (hashAdmin()){ byHash = true; openAdm(); } else if (pathAdmin()){ openAdm(); }
+
+/* ---------- field builders ---------- */
+function fld(label, input, hint){ return h('label', {class:'fl'}, [h('span', {text:label}), input, hint ? h('small', {text:hint}) : null]); }
+function tf(label, path, o){
+  o = o || {};
+  var i = h(o.area ? 'textarea' : 'input', {class:'in'});
+  if (!o.area) i.type = 'text'; else i.rows = o.rows || 3;
+  i.value = getP(path) || ''; if (o.ph) i.placeholder = o.ph;
+  i.addEventListener('input', function(){ setP(path, i.value); });
+  return fld(label, i, o.hint);
+}
+function lines(label, path, hint){
+  var i = h('textarea', {class:'in'}); i.rows = 4; i.value = (getP(path) || []).join('\n');
+  i.addEventListener('input', function(){ setP(path, i.value.split('\n').map(function(s){ return s.trim(); }).filter(Boolean)); });
+  return fld(label, i, hint || 'Har line ek item');
+}
+function tg(label, path, after){
+  var cb = h('input', {type:'checkbox'}); cb.checked = !!getP(path);
+  cb.addEventListener('change', function(){ setP(path, cb.checked); if (after) after(cb); });
+  return h('label', {class:'tg'}, [h('span', {text:label}), cb, h('i')]);
+}
+function cf(label, key){
+  var v = getP('colors.' + key), i = h('input', {type:'color'}), c = h('code', {text:v});
+  i.value = /^#[0-9a-f]{6}$/i.test(v) ? v : RC.DEF.colors[key];
+  i.addEventListener('input', function(){ c.textContent = i.value; setP('colors.' + key, i.value); });
+  return fld(label, h('div', {class:'clr'}, [i, c]));
+}
+function rf(label, path, min, max, step){
+  var i = h('input', {type:'range', min:min, max:max, step:step}), c = h('code', {text:getP(path)});
+  i.value = getP(path); i.style.width = '100%';
+  i.addEventListener('input', function(){ c.textContent = i.value; setP(path, parseFloat(i.value)); });
+  return fld(label, h('div', {class:'clr'}, [i, c]));
+}
+function openModal(content){
+  var m = h('div', {class:'mdl', onclick:function(e){ if (e.target === m) m.parentNode.removeChild(m); }}, [h('div', {class:'mdl-c'}, content)]);
+  adm.appendChild(m); return m;
+}
+function iconField(label, path, withHex){
+  var b = h('button', {class:'icb', type:'button'});
+  function paint(){ b.innerHTML = ICO(RC.ICONS[getP(path)] ? getP(path) : 'sparkle') + '<span>' + RC.esc(getP(path) || 'sparkle') + '</span>'; }
+  paint();
+  b.addEventListener('click', function(){
+    var grid = h('div', {class:'igrid'}), m;
+    Object.keys(RC.ICONS).forEach(function(n){
+      if (n === 'hex' && !withHex) return;
+      var o = h('button', {type:'button', class: getP(path) === n ? 'on' : '', html: ICO(n) + '<span>' + n + '</span>'});
+      o.addEventListener('click', function(){ setP(path, n); paint(); m.parentNode.removeChild(m); });
+      grid.appendChild(o);
+    });
+    m = openModal([h('h4', {text:'Icon choose karo'}), h('div', {class:'sm', text:' '}), grid]);
+  });
+  return fld(label, b);
+}
+function logoUpload(){
+  var f = h('input', {type:'file', accept:'image/*'}), st = h('small', {text: getP('logoImg') ? 'Custom logo set hai' : 'Koi custom logo nahi'});
+  f.addEventListener('change', function(){
+    var file = f.files[0]; if (!file) return;
+    var fr = new FileReader();
+    fr.onload = function(){
+      var im = new Image();
+      im.onload = function(){
+        var cv = document.createElement('canvas'), S = 128; cv.width = cv.height = S;
+        var x = cv.getContext('2d'), r = Math.min(S / im.width, S / im.height), w = im.width * r, hh = im.height * r;
+        x.drawImage(im, (S - w) / 2, (S - hh) / 2, w, hh);
+        setP('logoImg', cv.toDataURL('image/png')); st.textContent = 'Logo update ho gaya ✓';
+      };
+      im.onerror = function(){ RC.toast('Image read nahi hui'); };
+      im.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+  var up = h('button', {class:'bs pri', type:'button', text:'Logo image upload karo', onclick:function(){ f.click(); }});
+  var clr = h('button', {class:'bs', type:'button', text:'Custom logo hatao', onclick:function(){ setP('logoImg', ''); st.textContent = 'Koi custom logo nahi'; }});
+  var lab = h('div', {class:'fl'}, [h('span', {text:'Custom logo image (optional)'}), h('div', {class:'acts', style:'flex-wrap:wrap'}, [up, clr, f]), st]);
+  return lab;
+}
+function group(title, kids, note){ return h('div', {class:'ag'}, [h('h4', {text:title}), note ? h('p', {class:'n', text:note}) : null].concat(kids)); }
+function listEd(path, mk, blank, max, title){
+  var box = h('div');
+  function draw(){
+    box.innerHTML = ''; var arr = getP(path);
+    arr.forEach(function(it, i){
+      var pfx = path + '.' + i;
+      var acts = h('span', {class:'acts'}, [
+        h('button', {class:'bs', type:'button', text:'↑', onclick:function(){ if (i > 0){ var t = arr[i-1]; arr[i-1] = arr[i]; arr[i] = t; RC.touch(); flash(); draw(); } }}),
+        h('button', {class:'bs', type:'button', text:'↓', onclick:function(){ if (i < arr.length - 1){ var t = arr[i+1]; arr[i+1] = arr[i]; arr[i] = t; RC.touch(); flash(); draw(); } }}),
+        h('button', {class:'bs warn', type:'button', text:'✕', onclick:function(){ arr.splice(i, 1); RC.touch(); flash(); draw(); }})
+      ]);
+      box.appendChild(h('div', {class:'li'}, [h('div', {class:'li-h'}, [h('b', {text:title + ' ' + (i + 1)}), acts])].concat(mk(pfx))));
+    });
+    if (arr.length < max) box.appendChild(h('button', {class:'bs pri', type:'button', text:'+ ' + title + ' add karo', onclick:function(){ arr.push(RC.clone(blank)); RC.touch(); flash(); draw(); }}));
+  }
+  draw(); return box;
+}
+
+/* ---------- tabs ---------- */
+var TABS = [['general','General'],['hero','Hero'],['tool','Tool'],['content','Content'],['theme','Theme'],['files','Files'],['publish','Publish & Security']];
+
+function tGeneral(){ return [
+  group('Website identity', [
+    tf('Website name (live change)', 'siteName'),
+    tf('Badge text (PRO etc.)', 'proText', {hint:'Khali chhodo to badge hide ho jayega'}),
+    iconField('Logo icon', 'logoIcon', true), logoUpload()
+  ]),
+  group('Navigation', [tf('Link 1', 'navTool'), tf('Link 2', 'navFeatures'), tf('Link 3', 'navHow'), tf('Link 4', 'navFaq'), tf('Top-right button', 'navCta')]),
+  group('Footer', [tf('Brand', 'footerBrand'), tf('Text', 'footerText'), tf('Second line', 'footerLine2')])
+]; }
+function tHero(){ return [
+  group('Hero section', [
+    tf('Top badge text', 'heroBadge'), tf('Title line 1', 'heroT1'), tf('Title line 2', 'heroT2', {hint:'Khali = sirf ek line'}),
+    tf('Description', 'heroSub', {area:true, rows:4, hint:'**bold** likhne ke liye text ko ** ** me rakho'}),
+    tf('Button 1 text', 'cta1'), tf('Button 2 text', 'cta2'), lines('Trust points', 'trust')
+  ]),
+  group('Scrolling strip', [tg('Strip dikhao', 'showMarquee'), lines('Strip words', 'marquee')])
+]; }
+function tTool(){
+  var box = h('div');
+  function build(){
+    box.innerHTML = '';
+    function modeGuard(path, other){ return function(cb){ if (!cb.checked && !getP(other)){ setP(path, true); RC.toast('Kam se kam ek mode on rehna chahiye'); build(); } }; }
+    [
+      group('Modes', [tg('Decrypt mode on', 'modeDecrypt', modeGuard('modeDecrypt','modeEncrypt')), tg('Encrypt mode on', 'modeEncrypt', modeGuard('modeEncrypt','modeDecrypt')), tf('Decrypt tab label', 'labelDecrypt'), tf('Encrypt tab label', 'labelEncrypt')]),
+      group('Tool card texts', [tf('Card title', 'toolTitle'), tf('Drop zone title', 'dropTitle'), tf('Drop zone subtitle', 'dropSub'), tf('Decrypt button text', 'btnDecrypt'), tf('Encrypt button text', 'btnEncrypt'), tf('Download button text', 'dlText'), tf('“More options” text', 'moreText')]),
+      group('Display', [tg('Key label dikhao', 'showKey'), tf('Key label text', 'keyLabel', {hint:'Sirf display text — asli key change nahi hoti'}), tg('Result preview dikhao', 'showPreview')])
+    ].forEach(function(g){ box.appendChild(g); });
+  }
+  build(); return [box];
+}
+function tContent(){ return [
+  group('Features section', [tg('Section dikhao', 'showFeatures'), tf('Title', 'featuresTitle'), tf('Subtitle', 'featuresSub'),
+    listEd('features', function(p){ return [iconField('Icon', p + '.icon'), tf('Title', p + '.title'), tf('Text', p + '.text', {area:true, rows:2})]; }, {icon:'star', title:'New feature', text:'Description'}, 8, 'Feature')]),
+  group('Steps section', [tg('Section dikhao', 'showHow'), tf('Title', 'howTitle'),
+    listEd('how', function(p){ return [tf('Title', p + '.title'), tf('Text', p + '.text', {area:true, rows:2})]; }, {title:'New step', text:'Description'}, 6, 'Step')]),
+  group('FAQ section', [tg('Section dikhao', 'showFaq'), tf('Title', 'faqTitle'),
+    listEd('faq', function(p){ return [tf('Question', p + '.q'), tf('Answer', p + '.a', {area:true, rows:3})]; }, {q:'New question?', a:'Answer'}, 12, 'FAQ')])
+]; }
+function tTheme(){ return [
+  group('Colors', [cf('Primary (mint)', 'mint'), cf('Secondary (cyan)', 'cyan'), cf('Accent (violet)', 'violet'), cf('Gold start', 'gold'), cf('Gold end', 'gold2'), cf('Background', 'bg')]),
+  group('Particles', [tg('Moving particles on', 'fx.on'), rf('Density', 'fx.density', 0.2, 2, 0.1)]),
+  h('button', {class:'bs', type:'button', text:'Colors default karo', onclick:function(){ RC.cfg.colors = RC.clone(RC.DEF.colors); RC.touch(); flash(); render(); }})
+]; }
+
+/* ---------- files ---------- */
+function tFiles(){
+  var wrap = h('div'), list = h('div'), stat = h('p', {class:'n'});
+  var s = group('History settings', [
+    tg('Processed files ko is device ki local history me save karo', 'history.on'),
+    tf('Max files', 'history.max', {hint:'Purani files auto delete hoti hain (max 80 MB total)'}),
+    tg('Public page pe local-history note dikhao', 'history.showNote'), tf('Note text', 'histNote', {area:true, rows:2})
+  ], 'History sirf isi browser/app ke storage me rehti hai. Dusre users ke device ki files yahan nahi aati — kyunki koi server hi nahi hai.');
+  var mx = s.querySelectorAll('input.in'); // convert max to number
+  Array.prototype.forEach.call(mx, function(i){ if (i.value === String(getP('history.max'))){ i.type = 'number'; i.min = 5; i.max = 500; i.addEventListener('input', function(){ var n = Math.max(5, Math.min(500, parseInt(i.value, 10) || 100)); setP('history.max', n); }); } });
+  var chips = h('div', {class:'chips'});
+  [['all','All'],['decrypt','Decrypted'],['encrypt','Encrypted']].forEach(function(f){
+    chips.appendChild(h('button', {type:'button', class: filter === f[0] ? 'on' : '', text:f[1], onclick:function(){ filter = f[0]; render(); }}));
+  });
+  var tools = h('div', {class:'acts', style:'margin-bottom:12px;flex-wrap:wrap'}, [
+    h('button', {class:'bs', type:'button', text:'Refresh', onclick:function(){ render(); }}),
+    h('button', {class:'bs gold', type:'button', text:'Sab download karo', onclick:function(){ allDl(); }}),
+    h('button', {class:'bs warn', type:'button', id:'clrAll', text:'Sab delete karo', onclick:function(e){ var b = e.target; if (b.dataset.c){ RC.histClear().then(function(){ render(); }); } else { b.dataset.c = 1; b.textContent = 'Phir se tap karke confirm'; setTimeout(function(){ b.dataset.c = ''; b.textContent = 'Sab delete karo'; }, 3500); } }})
+  ]);
+  wrap.appendChild(s); wrap.appendChild(h('div', {class:'ag'}, [h('h4', {text:'Processed files'}), stat, chips, tools, list]));
+  var items = [];
+  RC.histList().then(function(all){
+    items = all.filter(function(m){ return filter === 'all' || m.mode === filter; });
+    var tot = all.reduce(function(a, m){ return a + (m.outSize || 0); }, 0);
+    stat.textContent = all.length + ' files · ' + RC.fmt(tot) + ' (is device pe)';
+    if (!items.length){ list.appendChild(h('div', {class:'empty', text: RC.cfg.history.on ? 'Abhi koi file process nahi hui.' : 'History off hai — on karne ke baad process ki hui files yahan aayengi.'})); return; }
+    items.forEach(function(m){
+      list.appendChild(h('div', {class:'fr'}, [
+        h('div', {class:'fr-i'}, [h('b', {text:m.outName}), h('small', {}, [h('span', {class:'tagm' + (m.mode === 'encrypt' ? ' e' : ''), text: m.mode === 'encrypt' ? 'ENC' : 'DEC'}), new Date(m.ts).toLocaleString() + ' · ' + RC.fmt(m.inSize) + ' → ' + RC.fmt(m.outSize)])]),
+        h('div', {class:'acts'}, [
+          h('button', {class:'bs', type:'button', text:'View', onclick:function(){ viewer(m); }}),
+          h('button', {class:'bs', type:'button', text:'⬇', onclick:function(){ RC.histGet(m.id).then(function(b){ if (b) RC.dl(new Blob([b], {type:'application/octet-stream'}), m.outName); }); }}),
+          h('button', {class:'bs warn', type:'button', text:'✕', onclick:function(){ RC.histDel(m.id).then(function(){ render(); }); }})
+        ])
+      ]));
+    });
+  });
+  function allDl(){
+    if (!items.length) return RC.toast('Download karne ke liye koi file nahi');
+    var i = 0; (function next(){ if (i >= items.length) return; var m = items[i++]; RC.histGet(m.id).then(function(b){ if (b) RC.dl(new Blob([b], {type:'application/octet-stream'}), m.outName); setTimeout(next, 600); }); })();
+  }
+  return [wrap];
+}
+function viewer(m){
+  RC.histGet(m.id).then(function(b){
+    if (!b) return RC.toast('File data nahi mili');
+    var text = RC.isTextLike(b), mode = text ? 'text' : 'hex';
+    var pre = h('pre', {text: RC.preview(b, mode)});
+    var blob = new Blob([b], {type:'application/octet-stream'}), mdl;
+    var btns = [
+      h('button', {class:'bs gold', type:'button', text:'Download', onclick:function(){ RC.dl(blob, m.outName); }}),
+      h('button', {class:'bs', type:'button', text:'Alternate download', onclick:function(){ RC.dlAlt(blob, m.outName); }}),
+      h('button', {class:'bs', type:'button', text:'Share / Save to…', onclick:function(){ RC.share(b, m.outName, text); }}),
+      h('button', {class:'bs', type:'button', text:'Copy Base64', onclick:function(){ RC.copyText(RC.b64(b)).then(function(){ RC.toast('Base64 copy ho gaya ✓'); }, function(){ RC.toast('Copy nahi hua'); }); }})
+    ];
+    if (text) btns.push(h('button', {class:'bs', type:'button', text:'Copy full text', onclick:function(){ RC.copyText(new TextDecoder('utf-8').decode(b)).then(function(){ RC.toast('Text copy ho gaya ✓'); }, function(){ RC.toast('Copy nahi hua'); }); }}));
+    btns.push(h('button', {class:'bs', type:'button', text: text ? 'Hex view' : 'Text view', onclick:function(e){ mode = mode === 'text' ? 'hex' : 'text'; pre.textContent = RC.preview(b, mode); e.target.textContent = mode === 'text' ? 'Hex view' : 'Text view'; }}));
+    btns.push(h('button', {class:'bs', type:'button', text:'Close', onclick:function(){ mdl.parentNode.removeChild(mdl); }}));
+    mdl = openModal([h('h4', {text:m.outName}), h('div', {class:'sm', text:(m.mode === 'encrypt' ? 'Encrypted' : 'Decrypted') + ' · ' + RC.fmt(m.outSize) + ' · from ' + m.inName + ' · ' + m.engine}), pre, h('div', {class:'btns'}, btns)]);
+  });
+}
+
+/* ---------- publish & security ---------- */
+function tPublish(){
+  var cur = h('input', {class:'in', type:'password', autocomplete:'current-password'}), n1 = h('input', {class:'in', type:'password', autocomplete:'new-password'}), n2 = h('input', {class:'in', type:'password', autocomplete:'new-password'});
+  var msg = h('div', {class:'err-t'});
+  var chg = h('button', {class:'bs pri', type:'button', text:'Password change karo', onclick:function(){
+    msg.style.color = ''; 
+    if (!SHA.verify(cur.value, RC.cfg.passHash)) return msg.textContent = 'Current password galat hai.';
+    if (n1.value.length < 6) return msg.textContent = 'Naya password kam se kam 6 characters ka rakho.';
+    if (n1.value !== n2.value) return msg.textContent = 'Dono naye passwords match nahi karte.';
+    RC.cfg.passHash = SHA.make(n1.value); RC.save(); cur.value = n1.value = n2.value = ''; msg.style.color = 'var(--mint)'; msg.textContent = 'Password change ho gaya ✓';
+  }});
+  var imp = h('textarea', {class:'in'}); imp.rows = 5; imp.placeholder = 'Yahan exported JSON paste karo';
+  var rst = h('button', {class:'bs warn', type:'button', text:'Sab settings default karo', onclick:function(e){
+    var b = e.target; if (b.dataset.c){ var ph = RC.cfg.passHash; RC.resetAll(); RC.cfg.passHash = RC.cfg.passHash || ph; RC.save(); render(); RC.toast('Settings default ho gayi'); }
+    else { b.dataset.c = 1; b.textContent = 'Phir se tap karke confirm'; setTimeout(function(){ b.dataset.c = ''; b.textContent = 'Sab settings default karo'; }, 3500); }
+  }});
+  return [
+    group('Admin password', [fld('Current password', cur), fld('Naya password', n1), fld('Naya password dubara', n2), chg, msg,
+      h('p', {class:'n', style:'margin-top:12px', text:'Note: ye front-end lock hai — panel ko chhupata hai, lekin jo bhi HTML file ka source dekh sake wo settings badal sakta hai. Asli security ke liye server-side login chahiye.'})]),
+    group('Sabke liye live karo', [
+      h('p', {class:'n', text:'Settings sirf isi browser/app me save hoti hain. Hosting par sabko dikhane ke liye neeche se updated HTML download karo (password hash bhi isme included hota hai) aur wahi file upload / APK me daalo.'}),
+      h('button', {class:'bs gold', type:'button', text:'Updated HTML download karo', onclick:function(){ var blob = new Blob([RC.bake()], {type:'text/html'}); if (!RC.dl(blob, 'rc24_decrypter_pro.html')) RC.toast('Download nahi hua'); else RC.toast('Updated HTML download shuru…'); }}),
+      h('div', {style:'height:8px'}),
+      h('button', {class:'bs', type:'button', text:'Alternate download', onclick:function(){ RC.dlAlt(new Blob([RC.bake()], {type:'text/html'}), 'rc24_decrypter_pro.html'); }})
+    ]),
+    group('Backup (JSON)', [
+      h('button', {class:'bs', type:'button', text:'Settings JSON copy karo', onclick:function(){ var o = RC.clone(RC.cfg); RC.copyText(JSON.stringify(o)).then(function(){ RC.toast('JSON copy ho gaya ✓'); }, function(){ RC.toast('Copy nahi hua'); }); }}),
+      h('div', {style:'height:10px'}), fld('Import JSON', imp),
+      h('button', {class:'bs pri', type:'button', text:'Import & apply', onclick:function(){ try{ var o = JSON.parse(imp.value); if (!o || typeof o !== 'object') throw 0; RC.importCfg(o); RC.toast('Import ho gaya ✓'); render(); }catch(e){ RC.toast('JSON valid nahi hai'); } }}),
+      h('div', {style:'height:14px'}), rst
+    ]),
+    group('Session', [h('button', {class:'bs', type:'button', text:'Logout', onclick:function(){ setAuthed(false); render(); }})])
+  ];
+}
+
+/* ---------- views ---------- */
+function loginView(setup){
+  var p1 = h('input', {class:'in', type:'password', placeholder: setup ? 'Naya password (min 6)' : 'Password', autocomplete: setup ? 'new-password' : 'current-password'});
+  var p2 = setup ? h('input', {class:'in', type:'password', placeholder:'Password dubara', autocomplete:'new-password', style:'margin-top:10px'}) : null;
+  var err = h('div', {class:'err-t'});
+  function go(){
+    var now = Date.now();
+    if (setup){
+      if (p1.value.length < 6) return err.textContent = 'Password kam se kam 6 characters ka rakho.';
+      if (p1.value !== p2.value) return err.textContent = 'Dono passwords match nahi karte.';
+      RC.cfg.passHash = SHA.make(p1.value); RC.save(); setAuthed(true); render(); return;
+    }
+    if (now < lockUntil) return err.textContent = Math.ceil((lockUntil - now) / 1000) + ' sec baad try karo.';
+    if (SHA.verify(p1.value, RC.cfg.passHash)){ fails = 0; setAuthed(true); render(); }
+    else { fails++; if (fails >= 5){ lockUntil = Date.now() + 30000; fails = 0; err.textContent = 'Bahut galat attempts — 30 sec ruko.'; } else err.textContent = 'Password galat hai.'; p1.value = ''; }
+  }
+  p1.addEventListener('keydown', function(e){ if (e.key === 'Enter' && !p2) go(); });
+  if (p2) p2.addEventListener('keydown', function(e){ if (e.key === 'Enter') go(); });
+  var box = h('div', {class:'login'}, [
+    h('div', {html: '<div style="width:44px;height:44px;color:var(--mint);margin-bottom:14px">' + ICO('lock', 1.8) + '</div>'}),
+    h('h3', {text: setup ? 'Admin password set karo' : 'Admin login'}),
+    h('p', {text: setup ? 'Pehli baar hai — apna admin password banao. Ise yaad rakho, recovery nahi hai.' : 'Panel kholne ke liye password daalo.'}),
+    p1, p2, h('button', {class:'bs pri', type:'button', style:'margin-top:14px', text: setup ? 'Password set karke enter karo' : 'Login', onclick:go}), err,
+    h('button', {class:'bs', type:'button', style:'margin-top:12px', text:'Website par wapas', onclick:closeAdm})
+  ]);
+  setTimeout(function(){ try{ p1.focus(); }catch(e){} }, 50);
+  return box;
+}
+function dashView(){
+  var bar = h('div', {class:'adm-bar'}, [h('h2', {html:'Admin <small>' + RC.esc(RC.cfg.siteName) + '</small>'}), h('span', {class:'svd', id:'svd', text:'Saved ✓'}),
+    h('button', {class:'bs', type:'button', text:'Close', onclick:closeAdm})]);
+  var tabs = h('div', {class:'adm-tabs'});
+  TABS.forEach(function(t){ tabs.appendChild(h('button', {type:'button', class: tab === t[0] ? 'on' : '', text:t[1], onclick:function(){ tab = t[0]; render(); }})); });
+  var fn = {general:tGeneral, hero:tHero, tool:tTool, content:tContent, theme:tTheme, files:tFiles, publish:tPublish}[tab];
+  var body = h('div', {class:'adm-body'}, [h('div', {class:'adm-in'}, fn())]);
+  return [bar, tabs, body];
+}
+function render(){
+  if (adm.hidden) return;
+  var st = adm.querySelector('.adm-body'), top = st ? st.scrollTop : 0;
+  adm.innerHTML = '';
+  if (!RC.cfg.passHash) adm.appendChild(h('div', {class:'adm-body'}, [loginView(true)]));
+  else if (!authed) adm.appendChild(h('div', {class:'adm-body'}, [loginView(false)]));
+  else { dashView().forEach(function(n){ adm.appendChild(n); }); var nb = adm.querySelector('.adm-body'); if (nb) nb.scrollTop = top; }
+}
+})();
+
+</script>
+<script id="js-fx">
+(function(){
+'use strict';
+var RC = window.RC;
+var c=document.getElementById('fx'), ctx=c.getContext('2d');
+var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+var W=0,H=0,dpr=1,P=[],pulses=[], mouse={x:-9999,y:-9999};
+var LINK=124, MR=170, loopOn=false, hidden=false;
+function fx(){ return RC.cfg.fx; }
+function make(){
+  var a=Math.random()*6.283, s=.12+Math.random()*.34;
+  return {x:Math.random()*W,y:Math.random()*H,vx:Math.cos(a)*s,vy:Math.sin(a)*s,r:.7+Math.random()*1.7,
+    ci:Math.random()<.12?3:(Math.random()*3)|0,ph:Math.random()*6.28};
+}
+function resize(){
+  dpr=Math.min(window.devicePixelRatio||1,2); W=window.innerWidth; H=window.innerHeight;
+  c.width=W*dpr; c.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+  var dens = Math.max(.2, Math.min(2, fx().density || 1));
+  var n=Math.round(Math.min(W<600?55:115, Math.max(30, Math.floor(W*H/13000))) * dens);
+  while(P.length<n) P.push(make()); P.length=n;
+}
+function start(){ if(!loopOn && !hidden){ loopOn=true; requestAnimationFrame(frame); } }
+function frame(t){
+  if(!fx().on){ ctx.clearRect(0,0,W,H); loopOn=false; return; }
+  if(hidden){ loopOn=false; return; }
+  var col=RC.fxColors, i,j,p,q,dx,dy,d,f,cs;
+  ctx.clearRect(0,0,W,H);
+  for(i=0;i<P.length;i++){
+    p=P[i];
+    if(!reduce){
+      dx=p.x-mouse.x; dy=p.y-mouse.y; d=Math.sqrt(dx*dx+dy*dy);
+      if(d<MR&&d>.1){ f=(1-d/MR)*.9; p.vx+=dx/d*f*.14; p.vy+=dy/d*f*.14; }
+      for(j=0;j<pulses.length;j++){ var pu=pulses[j]; dx=p.x-pu.x; dy=p.y-pu.y; d=Math.sqrt(dx*dx+dy*dy);
+        if(d>.1&&Math.abs(d-pu.r)<46){ f=(1-pu.r/pu.max)*.9; p.vx+=dx/d*f; p.vy+=dy/d*f; } }
+      p.vx*=.985; p.vy*=.985;
+      var sp=Math.sqrt(p.vx*p.vx+p.vy*p.vy);
+      if(sp<.1){p.vx*=1.04;p.vy*=1.04;} if(sp>2.4){p.vx*=2.4/sp;p.vy*=2.4/sp;}
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<-10)p.x=W+10; else if(p.x>W+10)p.x=-10;
+      if(p.y<-10)p.y=H+10; else if(p.y>H+10)p.y=-10;
+    }
+  }
+  for(j=pulses.length-1;j>=0;j--){ pulses[j].r+=9; if(pulses[j].r>pulses[j].max) pulses.splice(j,1); }
+  ctx.lineWidth=1;
+  for(i=0;i<P.length;i++){
+    p=P[i]; cs=col[p.ci];
+    for(j=i+1;j<P.length;j++){
+      q=P[j]; dx=p.x-q.x; dy=p.y-q.y;
+      if(dx>LINK||dx<-LINK||dy>LINK||dy<-LINK) continue;
+      d=Math.sqrt(dx*dx+dy*dy);
+      if(d<LINK){ ctx.strokeStyle='rgba('+cs+','+((1-d/LINK)*.24).toFixed(3)+')'; ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.stroke(); }
+    }
+    dx=p.x-mouse.x; dy=p.y-mouse.y; d=Math.sqrt(dx*dx+dy*dy);
+    if(d<MR){ ctx.strokeStyle='rgba('+cs+','+((1-d/MR)*.5).toFixed(3)+')'; ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(mouse.x,mouse.y); ctx.stroke(); }
+  }
+  for(i=0;i<P.length;i++){
+    p=P[i]; cs=col[p.ci]; var tw=.55+.45*Math.sin(t*.0016+p.ph);
+    ctx.fillStyle='rgba('+cs+','+(.08*tw).toFixed(3)+')'; ctx.beginPath(); ctx.arc(p.x,p.y,p.r*4.2,0,6.2832); ctx.fill();
+    ctx.fillStyle='rgba('+cs+','+(.5+.5*tw).toFixed(3)+')'; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,6.2832); ctx.fill();
+  }
+  for(j=0;j<pulses.length;j++){ ctx.strokeStyle='rgba('+col[0]+','+((1-pulses[j].r/pulses[j].max)*.35).toFixed(3)+')'; ctx.beginPath(); ctx.arc(pulses[j].x,pulses[j].y,pulses[j].r,0,6.2832); ctx.stroke(); }
+  if(!reduce) requestAnimationFrame(frame); else loopOn=false;
+}
+var lastDens = null;
+RC.fxWake = function(){
+  var d = fx().density;
+  if (d !== lastDens){ lastDens = d; resize(); }
+  start();
+};
+window.addEventListener('resize',function(){ resize(); if(reduce) { loopOn=false; start(); } });
+window.addEventListener('pointermove',function(e){ mouse.x=e.clientX; mouse.y=e.clientY; },{passive:true});
+window.addEventListener('pointerdown',function(e){ if(!reduce) pulses.push({x:e.clientX,y:e.clientY,r:0,max:320}); mouse.x=e.clientX; mouse.y=e.clientY; },{passive:true});
+window.addEventListener('pointerup',function(e){ if(e.pointerType==='touch'){ setTimeout(function(){ mouse.x=mouse.y=-9999; },400); } },{passive:true});
+document.addEventListener('visibilitychange',function(){ hidden=document.hidden; if(!hidden) start(); });
+lastDens = fx().density; resize(); start();
+})();
+
+</script>
+</body>
+</html>
